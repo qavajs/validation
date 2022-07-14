@@ -1,5 +1,5 @@
-import { getValidation, verify } from "./src/verify";
+import { getValidation, verify, validationRegexp } from './src/verify';
 
 declare module '@qavajs/validation' {
-    export { verify, getValidation }
+    export { verify, getValidation, validationRegexp }
 }

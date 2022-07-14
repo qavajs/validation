@@ -18,6 +18,7 @@ const toBeClause = '(?:to )?(?:be )?';
 const validationClause = `(?:(${Object.values(validations).join('|')})(?:s|es)?)`;
 
 export const validationExtractRegexp = new RegExp(`^${isClause}${notClause}${toBeClause}${validationClause}$`);
+export const validationRegexp = new RegExp(`(${isClause}${notClause}${toBeClause}${validationClause})`);
 
 type VerifyInput = {
   AR: any;
