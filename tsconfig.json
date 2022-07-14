@@ -1,0 +1,46 @@
+{
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "test",
+    "lib",
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "esnext",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./lib",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "pretty": true,
+    "allowJs": true,
+    "checkJs": true,
+    "downlevelIteration": true,
+    "lib": [
+      "dom",
+      "es2015",
+      "es2016",
+      "es2017",
+      "esnext",
+      "es2020.string"
+    ],
+    "types": [
+      "chai",
+      "node",
+    ],
+    "paths": {        /* Specify a set of entries that re-map imports to additional lookup locations. */
+      "@verify":["src/verify.ts"],
+      "@parameterTypeTransformer":["src/parameterTypeTransformer.ts"],
+      "@parameterTypes":["src/parameterTypes.ts"],
+      "@src/*":["src/*"]
+    },
+  }
+}
