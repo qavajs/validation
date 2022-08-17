@@ -1,7 +1,21 @@
-import { expect } from 'chai';
+import { expect, Assertion } from 'chai';
+
+Assertion.addMethod('notStrictEqual', function (ER) {
+  const obj = this._obj;
+
+  this.assert(
+      obj == ER,
+      'expected #{this} to equal #{exp}',
+      'expected #{this} to not equal #{exp}',
+      ER,
+      obj
+ );
+});
 
 export const validations = {
   EQUAL: 'equal',
+  DEEPLY_EQUAL: 'deeply equal',
+  STRICTLY_EQUAL: 'strictly equal',
   HAVE_MEMBERS: 'have member',
   MATCH: 'match',
   CONTAIN: 'contain',
@@ -27,12 +41,14 @@ type VerifyInput = {
   reverse: boolean;
 };
 
-const aboveFn = (expectClause: any, ER: any) => expectClause.above(ER);
-const belowFn = (expectClause: any, ER: any) => expectClause.below(ER);
+const aboveFn = (expectClause: any, ER: any) => expectClause.above(toNumber(ER));
+const belowFn = (expectClause: any, ER: any) => expectClause.below(toNumber(ER));
 const validationFns = {
-  [validations.EQUAL]: (expectClause: any, ER: any) => expectClause.eql(ER),
+  [validations.EQUAL]: (expectClause: any, ER: any) => expectClause.notStrictEqual(ER),
+  [validations.STRICTLY_EQUAL]: (expectClause: any, ER: any) => expectClause.equal(ER),
+  [validations.DEEPLY_EQUAL]: (expectClause: any, ER: any) => expectClause.eql(ER),
   [validations.HAVE_MEMBERS]: (expectClause: any, ER: any) => expectClause.have.members(ER),
-  [validations.MATCH]: (expectClause: any, ER: any) => expectClause.match(ER instanceof RegExp ? ER : new RegExp(ER)),
+  [validations.MATCH]: (expectClause: any, ER: any) => expectClause.match(toRegexp(ER)),
   [validations.CONTAIN]: (expectClause: any, ER: any) => expectClause.contain(ER),
   [validations.ABOVE]: aboveFn,
   [validations.BELOW]: belowFn,
@@ -58,4 +74,16 @@ export function getValidation(validationType: string): Function {
   return function (AR: any, ER: any) {
     verify({ AR, ER, validation, reverse: Boolean(reverse) });
   };
+}
+
+function toNumber(n: any): number {
+  const parsedNumber = parseFloat(n);
+  if (Number.isNaN(parsedNumber)) {
+    throw new Error(`${n} is not a number`);
+  }
+  return parsedNumber
+}
+
+function toRegexp(r: string | RegExp): RegExp {
+  return r instanceof RegExp ? r : new RegExp(r)
 }
