@@ -18,6 +18,6 @@ Lib supports following validations
 
 All validations can be negated adding _not_ word.
 
-##Test
+## Test
 
 `npm run test`
