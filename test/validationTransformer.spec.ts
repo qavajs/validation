@@ -192,6 +192,26 @@ const tests: Array<TestParams> = [
     expectedError: 'expected [ 1, 2, 3 ] to not have the same members as [ 3, 2, 1 ]',
   },
   {
+    testName: 'to include members',
+    validation: 'include members',
+    positiveArgs: [
+      [1, 2, 3],
+      [2, 1],
+    ],
+    negativeArgs: [[1, 2, 3], [4]],
+    expectedError: 'expected [ 1, 2, 3 ] to be a superset of [ 4 ]',
+  },
+  {
+    testName: 'not to include members',
+    validation: 'not to include members',
+    positiveArgs: [[1, 2, 3], [4]],
+    negativeArgs: [
+      [1, 2, 3],
+      [2, 1],
+    ],
+    expectedError: 'expected [ 1, 2, 3 ] to not be a superset of [ 2, 1 ]',
+  },
+  {
     testName: 'to be above',
     validation: 'to be above',
     positiveArgs: [2, 1],

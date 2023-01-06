@@ -13,6 +13,11 @@ Lib supports following validations
 * above / greater than - greater than
 * below / less than - less than
 * have type - type validation
-* have members - validation if array have members
+* have members - validation if array/object have exact members
+* include members - validation if array/object includes members
 
 All validations can be negated adding _not_ word.
+
+##Test
+
+`npm run test`

@@ -24,12 +24,13 @@ export const validations = {
   GREATER: 'greater than',
   LESS: 'less than',
   HAVE_TYPE: 'have type',
+  INCLUDE_MEMBERS: 'include member'
 };
 
 const isClause = '(?:is |do |does |to )?';
-const notClause = '(not |to not )?';
+const notClause = '(?<reverse>not |to not )?';
 const toBeClause = '(?:to )?(?:be )?';
-const validationClause = `(?:(${Object.values(validations).join('|')})(?:s|es)?)`;
+const validationClause = `(?:(?<validation>${Object.values(validations).join('|')})(?:s|es)?)`;
 
 export const validationExtractRegexp = new RegExp(`^${isClause}${notClause}${toBeClause}${validationClause}$`);
 export const validationRegexp = new RegExp(`(${isClause}${notClause}${toBeClause}${validationClause})`);
@@ -55,6 +56,7 @@ const validationFns = {
   [validations.GREATER]: aboveFn,
   [validations.LESS]: belowFn,
   [validations.HAVE_TYPE]: (expectClause: any, ER: string) => expectClause.a(ER),
+  [validations.INCLUDE_MEMBERS]: (expectClause: any, ER: string) => expectClause.include.members(ER),
 };
 
 /**
@@ -70,7 +72,7 @@ export function verify({ AR, ER, validation, reverse }: VerifyInput): void | Err
 export function getValidation(validationType: string): Function {
   const match = validationType.match(validationExtractRegexp) as RegExpMatchArray;
   if (!match) throw new Error(`validation '${validationType}' is not supported`);
-  const [_, reverse, validation] = match;
+  const { reverse, validation } = match.groups as {[p: string]: string};
   return function (AR: any, ER: any) {
     verify({ AR, ER, validation, reverse: Boolean(reverse) });
   };
