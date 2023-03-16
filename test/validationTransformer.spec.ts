@@ -302,13 +302,26 @@ const tests: Array<TestParams> = [
     negativeArgs: [1, 'string'],
     expectedError: 'expected 1 to be a string',
   },
-
   {
     testName: 'not to have type',
     validation: 'not to have type',
     positiveArgs: [{}, 'string'],
     negativeArgs: [{}, 'object'],
     expectedError: 'expected {} not to be an object',
+  },
+  {
+    testName: 'to have property',
+    validation: 'to have property',
+    positiveArgs: [{ prop: 42 }, 'prop'],
+    negativeArgs: [{ prop: 42 }, 'anotherProp'],
+    expectedError: 'expected { prop: 42 } to have property \'anotherProp\'',
+  },
+  {
+    testName: 'not to have property',
+    validation: 'not to have property',
+    positiveArgs: [{ prop: 42 }, 'anotherProp'],
+    negativeArgs: [{ prop: 42 }, 'prop'],
+    expectedError: 'expected { prop: 42 } to not have property \'prop\'',
   },
 ];
 
