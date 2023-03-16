@@ -24,7 +24,8 @@ export const validations = {
   GREATER: 'greater than',
   LESS: 'less than',
   HAVE_TYPE: 'have type',
-  INCLUDE_MEMBERS: 'include member'
+  INCLUDE_MEMBERS: 'include member',
+  HAVE_PROPERTY: 'have property'
 };
 
 const isClause = '(?:is |do |does |to )?';
@@ -57,6 +58,7 @@ const validationFns = {
   [validations.LESS]: belowFn,
   [validations.HAVE_TYPE]: (expectClause: any, ER: string) => expectClause.a(ER),
   [validations.INCLUDE_MEMBERS]: (expectClause: any, ER: string) => expectClause.include.members(ER),
+  [validations.HAVE_PROPERTY]: (expectClause: any, ER: string) => expectClause.have.property(ER),
 };
 
 /**

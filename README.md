@@ -15,6 +15,7 @@ Lib supports following validations
 * have type - type validation
 * have members - validation if array/object have exact members
 * include members - validation if array/object includes members
+* have property - have property validation
 
 All validations can be negated adding _not_ word.
 
