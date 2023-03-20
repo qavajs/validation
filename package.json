@@ -16,7 +16,8 @@
     "Test Automation"
   ],
   "authors": [
-    "Alexandr Galichenko"
+    "Alexandr Galichenko",
+    "Alexandr Legchilov"
   ],
   "license": "MIT",
   "types": "./index.d.ts",
