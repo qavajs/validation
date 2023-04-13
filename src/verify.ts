@@ -1,4 +1,5 @@
 import { expect, Assertion } from 'chai';
+import Ajv from 'ajv'
 
 Assertion.addMethod('notStrictEqual', function (ER) {
   const obj = this._obj;
@@ -10,6 +11,25 @@ Assertion.addMethod('notStrictEqual', function (ER) {
       ER,
       obj
  );
+});
+
+Assertion.addMethod('matchSchema', function (schema) {
+  const obj = this._obj;
+  const ajv = new Ajv();
+  const validate = ajv.compile(schema);
+  const isValid = validate(obj);
+  const messages = validate.errors ? validate.errors?.map(err => err.message) : [];
+  const errors = [
+    'expected #{this} to match schema #{exp}',
+    ...messages
+  ].join('\n');
+  this.assert(
+      isValid,
+      errors,
+      'expected #{this} to not match schema #{exp}',
+      schema,
+      obj
+  );
 });
 
 export const validations = {
@@ -25,7 +45,8 @@ export const validations = {
   LESS: 'less than',
   HAVE_TYPE: 'have type',
   INCLUDE_MEMBERS: 'include member',
-  HAVE_PROPERTY: 'have property'
+  HAVE_PROPERTY: 'have property',
+  MATCH_SCHEMA: 'match schema'
 };
 
 const isClause = '(?:is |do |does |to )?';
@@ -59,6 +80,7 @@ const validationFns = {
   [validations.HAVE_TYPE]: (expectClause: any, ER: string) => expectClause.a(ER),
   [validations.INCLUDE_MEMBERS]: (expectClause: any, ER: string) => expectClause.include.members(ER),
   [validations.HAVE_PROPERTY]: (expectClause: any, ER: string) => expectClause.have.property(ER),
+  [validations.MATCH_SCHEMA]: (expectClause: any, ER: string) => expectClause.matchSchema(ER),
 };
 
 /**
