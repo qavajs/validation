@@ -88,7 +88,8 @@ const validationFns = {
  * @param {VerifyInput} object with all needed data for validation
  */
 export function verify({ AR, ER, validation, reverse }: VerifyInput): void | Error {
-  const expectClause = reverse ? expect(AR).to.not : expect(AR).to;
+  const prefix = 'Fail';
+  const expectClause = reverse ? expect(AR, prefix).to.not : expect(AR, prefix).to;
   const validate = validationFns[validation];
   validate(expectClause, ER);
 }
