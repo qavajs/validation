@@ -102,6 +102,13 @@ const tests: Array<TestParams> = [
     expectedError: 'expected { x: 1 } to deeply equal { x: 2 }',
   },
   {
+    testName: 'deeply equals array',
+    validation: 'deeply equals',
+    positiveArgs: [[1], [1]],
+    negativeArgs: [[1], [2]],
+    expectedError: 'expected [ 1 ] to deeply equal [ 2 ]',
+  },
+  {
     testName: 'to deeply equal',
     validation: 'to deeply equal',
     positiveArgs: [{x: 1}, {x: 1}],
@@ -114,6 +121,13 @@ const tests: Array<TestParams> = [
     positiveArgs: [{x: 1}, {x: 2}],
     negativeArgs: [{x: 1}, {x: 1}],
     expectedError: 'expected { x: 1 } to not deeply equal { x: 1 }',
+  },
+  {
+    testName: 'does not deeply equal array',
+    validation: 'does not deeply equal',
+    positiveArgs: [[1], [2]],
+    negativeArgs: [[], []],
+    expectedError: 'expected [] to not deeply equal []',
   },
   {
     testName: 'not to deeply equal',
