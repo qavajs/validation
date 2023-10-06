@@ -17,6 +17,7 @@ Lib supports following validations
 * include members - validation if array/object includes members
 * have property - have property validation
 * match schema - match [ajv](https://www.npmjs.com/package/ajv) schema
+* case insensitive equal - not strict equal (==) with casting to lower case 
 
 All validations can be negated adding _not_ word.
 
