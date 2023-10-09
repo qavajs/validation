@@ -379,6 +379,20 @@ const tests: Array<TestParams> = [
     }],
     expectedError: 'expected { prop: 42 } to not match schema { type: \'object\', …(3) }',
   },
+  {
+    testName: 'case insensitive equals',
+    validation: 'case insensitive equals',
+    positiveArgs: ['some text', 'Some Text'],
+    negativeArgs: ['some text', 'Another Text'],
+    expectedError: 'expected \'some text\' to equal \'Another Text\'',
+  },
+  {
+    testName: 'not to case insensitive equal',
+    validation: 'not to case insensitive equal',
+    positiveArgs: ['some text', 'Another Text'],
+    negativeArgs: ['some text', 'Some Text'],
+    expectedError: 'expected \'some text\' to not equal \'Some Text\'',
+  },
 ];
 
 test.each(tests)('$testName', ({ validation, positiveArgs, negativeArgs, expectedError }: TestParams) => {

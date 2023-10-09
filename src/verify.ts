@@ -13,6 +13,18 @@ Assertion.addMethod('notStrictEqual', function (ER) {
  );
 });
 
+Assertion.addMethod('caseInsensitiveEqual', function (ER) {
+  const obj = this._obj;
+
+  this.assert(
+      obj.toLowerCase() == ER.toLowerCase(),
+      'expected #{this} to equal #{exp}',
+      'expected #{this} to not equal #{exp}',
+      ER,
+      obj
+  );
+});
+
 Assertion.addMethod('matchSchema', function (schema) {
   const obj = this._obj;
   const ajv = new Ajv();
@@ -46,7 +58,8 @@ export const validations = {
   HAVE_TYPE: 'have type',
   INCLUDE_MEMBERS: 'include member',
   HAVE_PROPERTY: 'have property',
-  MATCH_SCHEMA: 'match schema'
+  MATCH_SCHEMA: 'match schema',
+  CASE_INSENSITIVE_EQUAL: 'case insensitive equal',
 };
 
 const isClause = '(?:is |do |does |to )?';
@@ -81,6 +94,7 @@ const validationFns = {
   [validations.INCLUDE_MEMBERS]: (expectClause: any, ER: string) => expectClause.include.members(ER),
   [validations.HAVE_PROPERTY]: (expectClause: any, ER: string) => expectClause.have.property(ER),
   [validations.MATCH_SCHEMA]: (expectClause: any, ER: string) => expectClause.matchSchema(ER),
+  [validations.CASE_INSENSITIVE_EQUAL]: (expectClause: any, ER: any) => expectClause.caseInsensitiveEqual(ER),
 };
 
 /**
