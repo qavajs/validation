@@ -10,8 +10,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "target": "es2016",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "outDir": "./lib",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -35,12 +35,6 @@
     "types": [
       "chai",
       "node",
-    ],
-    "paths": {        /* Specify a set of entries that re-map imports to additional lookup locations. */
-      "@verify":["src/verify.ts"],
-      "@parameterTypeTransformer":["src/parameterTypeTransformer.ts"],
-      "@parameterTypes":["src/parameterTypes.ts"],
-      "@src/*":["src/*"]
-    },
+    ]
   }
 }

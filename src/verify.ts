@@ -101,19 +101,43 @@ const validationFns = {
  * Basic verification function
  * @param {VerifyInput} object with all needed data for validation
  */
-export function verify({ AR, ER, validation, reverse }: VerifyInput): void | Error {
+export function verify({ AR, ER, validation, reverse }: VerifyInput): void {
   const prefix = 'Fail';
   const expectClause = reverse ? expect(AR, prefix).to.not : expect(AR, prefix).to;
   const validate = validationFns[validation];
   validate(expectClause, ER);
 }
 
-export function getValidation(validationType: string): Function {
-  const match = validationType.match(validationExtractRegexp) as RegExpMatchArray;
+export function getValidation(validationType: string): (AR: any, ER: any) => void {
+  const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`validation '${validationType}' is not supported`);
   const { reverse, validation } = match.groups as {[p: string]: string};
   return function (AR: any, ER: any) {
     verify({ AR, ER, validation, reverse: Boolean(reverse) });
+  };
+}
+
+export function getPollValidation(validationType: string): (AR: any, ER: any, options: { timeout: number, interval: number }) => Promise<unknown> {
+  const match = validationExtractRegexp.exec(validationType);
+  if (!match) throw new Error(`poll validation '${validationType}' is not supported`);
+  const { reverse, validation } = match.groups as {[p: string]: string};
+  return async function (AR: any, ER: any, { timeout = 5000, interval = 500 }: { timeout: number, interval: number }) {
+    let lastError: Error | null = null;
+
+    const evaluatePromise = new Promise<void>(resolve => {
+      const intervalId = setInterval(async () => {
+        try {
+          const actualValue = await AR();
+          verify({ AR: actualValue, ER, validation, reverse: Boolean(reverse) });
+          clearInterval(intervalId);
+          resolve();
+        } catch (err: any) {
+          lastError = err;
+        }
+      }, interval)
+    });
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(lastError), timeout));
+    return Promise.race([evaluatePromise, timeoutPromise]);
   };
 }
 
