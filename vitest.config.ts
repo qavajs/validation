@@ -1,6 +1,4 @@
-import { defineConfig } from 'vitest/config'
-
-export default defineConfig({
+export default {
   test: {
     coverage: {
       provider: 'v8',
@@ -13,4 +11,4 @@ export default defineConfig({
     },
     testTimeout: 20000
   }
-})
+}
