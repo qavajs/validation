@@ -4,7 +4,7 @@
 
 This is internal @qavajs library that helps to transform plain english definition to validation functions
 
-Lib supports following validations
+Lib supports following validations:
 * equal - not strict equal (==)
 * strictly equal - strict equal (===)
 * deeply equal - deep equal (chai eql)
