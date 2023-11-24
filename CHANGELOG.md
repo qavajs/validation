@@ -1,5 +1,6 @@
 ## 0.7.0
 - :rocket: added _case insensitive equal_ validation
+- :rocket: added poll validation
 
 ## 0.6.0
 - :rocket: added prefix to enable displaying error message
