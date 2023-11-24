@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { test } from '@jest/globals';
+import { test } from 'vitest';
 import { getValidation } from '../src/verify';
 
 type TestParams = {

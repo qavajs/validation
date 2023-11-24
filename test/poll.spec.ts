@@ -1,4 +1,4 @@
-import { test } from '@jest/globals';
+import { test } from 'vitest';
 import { getPollValidation } from '../src/verify';
 import { expect } from 'chai';
 
@@ -34,4 +34,9 @@ test('poll timeout', async () => {
     } catch (err: any) {
         expect(err.message).to.equal("Fail: expected 'uno' to equal 'fail'");
     }
+});
+
+test('should throw an error if validation is not supported', () => {
+    const catcher = () => getPollValidation('to be cool');
+    expect(catcher).to.throw("poll validation 'to be cool' is not supported");
 });
