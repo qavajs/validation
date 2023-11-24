@@ -109,7 +109,7 @@ export function verify({ AR, ER, validation, reverse }: VerifyInput): void {
 }
 
 export function getValidation(validationType: string): (AR: any, ER: any) => void {
-  const match = validationType.match(validationExtractRegexp) as RegExpMatchArray;
+  const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`validation '${validationType}' is not supported`);
   const { reverse, validation } = match.groups as {[p: string]: string};
   return function (AR: any, ER: any) {
@@ -118,7 +118,7 @@ export function getValidation(validationType: string): (AR: any, ER: any) => voi
 }
 
 export function getPollValidation(validationType: string): (AR: any, ER: any, options: { timeout: number, interval: number }) => Promise<unknown> {
-  const match = validationType.match(validationExtractRegexp) as RegExpMatchArray;
+  const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`poll validation '${validationType}' is not supported`);
   const { reverse, validation } = match.groups as {[p: string]: string};
   return async function (AR: any, ER: any, { timeout = 5000, interval = 500 }: { timeout: number, interval: number }) {
