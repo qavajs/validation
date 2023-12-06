@@ -117,11 +117,13 @@ export function getValidation(validationType: string): (AR: any, ER: any) => voi
   };
 }
 
-export function getPollValidation(validationType: string): (AR: any, ER: any, options: { timeout: number, interval: number }) => Promise<unknown> {
+export function getPollValidation(validationType: string): (AR: any, ER: any, options?: { timeout: number, interval: number }) => Promise<unknown> {
   const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`poll validation '${validationType}' is not supported`);
   const { reverse, validation } = match.groups as {[p: string]: string};
-  return async function (AR: any, ER: any, { timeout = 5000, interval = 500 }: { timeout: number, interval: number }) {
+  return async function (AR: any, ER: any, options?: { timeout: number, interval: number }) {
+    const timeout = options?.timeout ?? 5000;
+    const interval = options?.interval ?? 500;
     let lastError: Error | null = null;
 
     const evaluatePromise = new Promise<void>(resolve => {
