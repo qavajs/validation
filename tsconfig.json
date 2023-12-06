@@ -8,7 +8,6 @@
     "node_modules"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
     "target": "es2016",
     "module": "node16",
     "moduleResolution": "node16",
@@ -33,8 +32,7 @@
       "es2020.string"
     ],
     "types": [
-      "chai",
-      "node",
+      "chai"
     ]
   }
 }
