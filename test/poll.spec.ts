@@ -1,6 +1,5 @@
-import { test } from 'vitest';
+import { test, expect } from 'vitest';
 import { getPollValidation } from '../src/verify';
-import { expect } from 'chai';
 
 function asyncActualValueString() {
     let index = 0;
@@ -13,6 +12,23 @@ function asyncActualValueString() {
         return values[index++]
     }
 }
+
+function asyncActualValueStringWithTimeout(timeout: number) {
+    let index = 0;
+    const values = [
+        'uno',
+        'dos',
+        'tres'
+    ];
+    return async function() {
+        return new Promise<string>(resolve => {
+            setTimeout(() => {
+                resolve(values[index++])
+            }, timeout)
+        })
+    }
+}
+
 test('poll to equal', async () => {
     const actualFn = asyncActualValueString();
     const validation = getPollValidation('to equal');
@@ -28,12 +44,24 @@ test('poll to contain', async () => {
 test('poll timeout', async () => {
     const actualFn = asyncActualValueString();
     const validation = getPollValidation('to equal');
-    try {
-        await validation(actualFn, 'fail', { timeout: 1000, interval: 500 });
-        throw new Error('error was not thown');
-    } catch (err: any) {
-        expect(err.message).to.equal("Fail: expected 'uno' to equal 'fail'");
-    }
+    await expect(() => validation(actualFn, 'fail', { timeout: 1000, interval: 500 })).rejects.toThrow("Fail: expected 'uno' to equal 'fail'")
+});
+
+test('poll delay greater than interval', async () => {
+    const actualFn = asyncActualValueStringWithTimeout(1000);
+    const validation = getPollValidation('to equal');
+    await validation(actualFn, 'tres', { timeout: 4000, interval: 500 });
+});
+
+test('poll delay greater than timeout', async () => {
+    const actualFn = asyncActualValueStringWithTimeout(3000);
+    const validation = getPollValidation('to equal');
+    await expect(() => validation(actualFn, 'tres', { timeout: 2000, interval: 500 })).rejects.toThrow('Unexpected error')
+});
+
+test('should throw an error if validation is not supported', () => {
+    const catcher = () => getPollValidation('to be cool');
+    expect(catcher).to.throw("poll validation 'to be cool' is not supported");
 });
 
 test('should throw an error if validation is not supported', () => {

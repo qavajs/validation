@@ -124,7 +124,7 @@ export function getPollValidation(validationType: string): (AR: any, ER: any, op
   return async function (AR: any, ER: any, options?: { timeout: number, interval: number }) {
     const timeout = options?.timeout ?? 5000;
     const interval = options?.interval ?? 500;
-    let lastError: Error | null = null;
+    let lastError: Error = new Error('Unexpected error');
 
     const evaluatePromise = new Promise<void>(resolve => {
       const intervalId = setInterval(async () => {
