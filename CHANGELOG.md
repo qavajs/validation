@@ -1,6 +1,7 @@
 ## Unreleased
 - :beetle: fixed pollValidation dts
-
+- :beetle: introduced default poll error
+  
 ## 0.7.0
 - :rocket: added _case insensitive equal_ validation
 - :rocket: added poll validation

@@ -2,7 +2,7 @@
 
 `npm install @qavajs/validation`
 
-This is internal @qavajs library that helps to transform plain english definition to validation functions
+@qavajs library that transforms plain english definition to validation functions
 
 Lib supports following validations:
 * equal - not strict equal (==)
