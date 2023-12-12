@@ -125,9 +125,9 @@ export function getPollValidation(validationType: string): (AR: any, ER: any, op
     const timeout = options?.timeout ?? 5000;
     const interval = options?.interval ?? 500;
     let lastError: Error = new Error('Unexpected error');
-
+    let intervalId: NodeJS.Timeout;
     const evaluatePromise = new Promise<void>(resolve => {
-      const intervalId = setInterval(async () => {
+      intervalId = setInterval(async () => {
         try {
           const actualValue = await AR();
           verify({ AR: actualValue, ER, validation, reverse: Boolean(reverse) });
@@ -138,7 +138,10 @@ export function getPollValidation(validationType: string): (AR: any, ER: any, op
         }
       }, interval)
     });
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(lastError), timeout));
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => {
+      clearInterval(intervalId);
+      reject(lastError)
+    }, timeout));
     return Promise.race([evaluatePromise, timeoutPromise]);
   };
 }
