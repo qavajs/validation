@@ -1,3 +1,20 @@
+# Change Log
+
+All notable changes to the "@qavajs/steps-playwright" will be documented in this file.
+
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
+:rocket: - new feature
+
+:beetle: - bugfix
+
+:x: - deprecation/removal
+
+:pencil: - chore
+
+## 0.8.0
+- :pencil: update dependencies
+
 ## 0.7.1
 - :beetle: fixed pollValidation dts
 - :beetle: introduced default poll error
