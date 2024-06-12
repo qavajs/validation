@@ -30,17 +30,19 @@ Assertion.addMethod('matchSchema', function (schema) {
   const ajv = new Ajv();
   const validate = ajv.compile(schema);
   const isValid = validate(obj);
-  const messages = validate.errors ? validate.errors?.map(err => err.message) : [];
+  const messages = validate.errors
+      ? validate.errors?.map(err => `${err.instancePath} ${err.message} (${err.schemaPath})`)
+      : [];
   const errors = [
-    'expected #{this} to match schema #{exp}',
+    'object does not match schema',
     ...messages
   ].join('\n');
   this.assert(
       isValid,
       errors,
       'expected #{this} to not match schema #{exp}',
-      schema,
-      obj
+      '',
+      ''
   );
 });
 
