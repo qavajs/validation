@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## 0.9.0
+- :rocket: improved ajv report
+
 ## 0.8.0
 - :pencil: update dependencies
 

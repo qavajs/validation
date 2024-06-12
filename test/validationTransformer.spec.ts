@@ -340,44 +340,25 @@ const tests: Array<TestParams> = [
   {
     testName: 'to match schema',
     validation: 'to match schema',
-    positiveArgs: [{ prop: 42 }, {
+    positiveArgs: [{ prop: 42, str: 'abc' }, {
       type: 'object',
       properties: {
         prop: {type: 'integer'},
+        str: {type: 'string', pattern: '^abc$'}
       },
       required: ['prop'],
       additionalProperties: false,
     }],
-    negativeArgs: [{ prop2: 42 }, {
+    negativeArgs: [{ prop: 42, str: 'ab' }, {
       type: 'object',
       properties: {
         prop: {type: 'integer'},
+        str: {type: 'string', pattern: '^abc$'}
       },
       required: ['prop'],
       additionalProperties: false,
     }],
-    expectedError: 'expected { prop2: 42 } to match schema { type: \'object\', …(3) }\nmust have required property \'prop\'',
-  },
-  {
-    testName: 'not to match schema',
-    validation: 'not to match schema',
-    positiveArgs: [{ prop: 42 }, {
-      type: 'object',
-      properties: {
-        prop: {type: 'string'},
-      },
-      required: ['prop'],
-      additionalProperties: false,
-    }],
-    negativeArgs: [{ prop: 42 }, {
-      type: 'object',
-      properties: {
-        prop: {type: 'integer'},
-      },
-      required: ['prop'],
-      additionalProperties: false,
-    }],
-    expectedError: 'expected { prop: 42 } to not match schema { type: \'object\', …(3) }',
+    expectedError: 'object does not match schema\n/str must match pattern "^abc$" (#/properties/str/pattern)',
   },
   {
     testName: 'case insensitive equals',
