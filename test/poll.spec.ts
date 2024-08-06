@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { getPollValidation } from '../src/verify';
+import { getPollValidation, poll } from '../src/verify';
 
 function asyncActualValueString() {
     let index = 0;
@@ -67,4 +67,15 @@ test('should throw an error if validation is not supported', () => {
 test('should throw an error if validation is not supported', () => {
     const catcher = () => getPollValidation('to be cool');
     expect(catcher).to.throw("poll validation 'to be cool' is not supported");
+});
+
+test('generic poll', async () => {
+    await poll(async () => true, { timeout: 2000, interval: 500 });
+});
+
+test('generic err', async () => {
+    const catcher = () => poll(async () => {
+        throw new Error('custom error')
+    }, { timeout: 2000, interval: 500 });
+    expect(catcher).rejects.toThrow("custom error");
 });

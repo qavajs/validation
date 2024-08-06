@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## 0.10.0
+- :rocket: added _poll_ function to perform generic validation
+
 ## 0.9.0
 - :rocket: improved ajv report
 
