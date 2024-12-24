@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## 1.0.0
+- :rocket: improved error message if poll promise is not resolved in time
+
 ## 0.10.0
 - :rocket: added _poll_ function to perform generic validation
 
