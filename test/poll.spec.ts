@@ -56,17 +56,17 @@ test('poll delay greater than interval', async () => {
 test('poll delay greater than timeout', async () => {
     const actualFn = asyncActualValueStringWithTimeout(3000);
     const validation = getPollValidation('to equal');
-    await expect(() => validation(actualFn, 'tres', { timeout: 2000, interval: 500 })).rejects.toThrow('Unexpected error')
+    await expect(() => validation(actualFn, 'tres', { timeout: 2000, interval: 500 })).rejects.toThrow('Promise was not settled before timeout')
 });
 
 test('should throw an error if validation is not supported', () => {
     const catcher = () => getPollValidation('to be cool');
-    expect(catcher).to.throw("poll validation 'to be cool' is not supported");
+    expect(catcher).to.throw("Poll validation 'to be cool' is not supported");
 });
 
 test('should throw an error if validation is not supported', () => {
     const catcher = () => getPollValidation('to be cool');
-    expect(catcher).to.throw("poll validation 'to be cool' is not supported");
+    expect(catcher).to.throw("Poll validation 'to be cool' is not supported");
 });
 
 test('generic poll', async () => {

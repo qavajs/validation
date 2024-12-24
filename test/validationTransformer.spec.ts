@@ -386,5 +386,5 @@ test.each(tests)('$testName', ({ validation, positiveArgs, negativeArgs, expecte
 
 test('should throw an error if validation is not supported', () => {
   const catcher = () => getValidation('to be cool');
-  expect(catcher).to.throw("validation 'to be cool' is not supported");
+  expect(catcher).to.throw("Validation 'to be cool' is not supported");
 });
