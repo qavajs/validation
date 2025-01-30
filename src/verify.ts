@@ -138,7 +138,7 @@ export function getPollValidation(validationType: string): (AR: any, ER: any, op
         } catch (err: any) {
           lastError = err;
         }
-      }, interval)
+      }, interval);
     });
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => {
       clearInterval(intervalId);
@@ -162,11 +162,11 @@ export async function poll(fn: Function, options?: { timeout?: number, interval?
       } catch (err: any) {
         lastError = err;
       }
-    }, interval)
+    }, interval);
   });
   const timeoutPromise = new Promise((_, reject) => setTimeout(() => {
     clearInterval(intervalId);
-    reject(lastError)
+    reject(lastError);
   }, timeout));
   return Promise.race([evaluatePromise, timeoutPromise]);
 }
@@ -176,9 +176,9 @@ function toNumber(n: any): number {
   if (Number.isNaN(parsedNumber)) {
     throw new Error(`${n} is not a number`);
   }
-  return parsedNumber
+  return parsedNumber;
 }
 
 function toRegexp(r: string | RegExp): RegExp {
-  return r instanceof RegExp ? r : new RegExp(r)
+  return r instanceof RegExp ? r : new RegExp(r);
 }
