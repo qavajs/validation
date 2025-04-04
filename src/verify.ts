@@ -67,7 +67,7 @@ export const validations = {
 const isClause = '(?:is |do |does |to )?';
 const notClause = '(?<reverse>not |to not )?';
 const toBeClause = '(?:to )?(?:be )?';
-const validationClause = `(?:(?<validation>${Object.values(validations).join('|')})(?:s|es)?)`;
+const validationClause = `(?:(?<validation>${Object.values(validations).join('|')})(?:s|es| to)?)`;
 
 export const validationExtractRegexp = new RegExp(`^${isClause}${notClause}${toBeClause}${validationClause}$`);
 export const validationRegexp = new RegExp(`(${isClause}${notClause}${toBeClause}${validationClause})`);

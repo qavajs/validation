@@ -18,6 +18,13 @@ const tests: Array<TestParams> = [
     expectedError: 'expected 1 to equal 2',
   },
   {
+    testName: 'equal to',
+    validation: 'equal to',
+    positiveArgs: [1, 1],
+    negativeArgs: [1, 2],
+    expectedError: 'expected 1 to equal 2',
+  },
+  {
     testName: 'equals with type cast',
     validation: 'equals',
     positiveArgs: [1, '1'],
