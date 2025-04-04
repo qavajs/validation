@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## 1.1.1
+- :rocket: added capability to pass _to_ suffix (e.g _equal to_)
+
 ## 1.1.0
 - :rocket: added source maps
 

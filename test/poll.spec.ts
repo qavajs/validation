@@ -77,5 +77,5 @@ test('generic err', async () => {
     const catcher = () => poll(async () => {
         throw new Error('custom error')
     }, { timeout: 2000, interval: 500 });
-    expect(catcher).rejects.toThrow("custom error");
+    await expect(catcher).rejects.toThrow('custom error');
 });
