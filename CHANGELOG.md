@@ -1,6 +1,6 @@
 # Change Log
 
-All notable changes to the "@qavajs/steps-playwright" will be documented in this file.
+All notable changes to the "@qavajs/validation" will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
@@ -11,6 +11,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 :x: - deprecation/removal
 
 :pencil: - chore
+
+## 1.2.0
+- :rocket: added capability to pass `soft` flag and throw `SoftAssertionError`
 
 ## 1.1.1
 - :rocket: added capability to pass _to_ suffix (e.g _equal to_)

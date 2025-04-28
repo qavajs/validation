@@ -1,5 +1,9 @@
-import { expect, Assertion } from 'chai';
+import { expect, Assertion, AssertionError} from 'chai';
 import Ajv from 'ajv'
+
+export class SoftAssertionError extends AssertionError {
+  name = 'SoftAssertionError';
+}
 
 Assertion.addMethod('notStrictEqual', function (ER) {
   const obj = this._obj;
@@ -77,6 +81,7 @@ type VerifyInput = {
   ER: any;
   validation: string;
   reverse: boolean;
+  soft: boolean;
 };
 
 const aboveFn = (expectClause: any, ER: any) => expectClause.above(toNumber(ER));
@@ -103,23 +108,28 @@ const validationFns = {
  * Basic verification function
  * @param {VerifyInput} object with all needed data for validation
  */
-export function verify({ AR, ER, validation, reverse }: VerifyInput): void {
+export function verify({ AR, ER, validation, reverse, soft }: VerifyInput): void {
   const prefix = 'Fail';
   const expectClause = reverse ? expect(AR, prefix).to.not : expect(AR, prefix).to;
   const validate = validationFns[validation];
-  validate(expectClause, ER);
+  try {
+    validate(expectClause, ER);
+  } catch (err) {
+    if (soft && err instanceof Error) throw new SoftAssertionError(err.message, { cause: err });
+    throw err;
+  }
 }
 
-export function getValidation(validationType: string): (AR: any, ER: any) => void {
+export function getValidation(validationType: string, options?: { soft: boolean }): (AR: any, ER: any) => void {
   const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`Validation '${validationType}' is not supported`);
   const { reverse, validation } = match.groups as {[p: string]: string};
   return function (AR: any, ER: any) {
-    verify({ AR, ER, validation, reverse: Boolean(reverse) });
+    verify({ AR, ER, validation, reverse: Boolean(reverse), soft: options?.soft ?? false });
   };
 }
 
-export function getPollValidation(validationType: string): (AR: any, ER: any, options?: { timeout?: number, interval?: number }) => Promise<unknown> {
+export function getPollValidation(validationType: string, opts?: { soft: boolean }): (AR: any, ER: any, options?: { timeout?: number, interval?: number }) => Promise<unknown> {
   const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`Poll validation '${validationType}' is not supported`);
   const { reverse, validation } = match.groups as {[p: string]: string};
@@ -132,7 +142,13 @@ export function getPollValidation(validationType: string): (AR: any, ER: any, op
       intervalId = setInterval(async () => {
         try {
           const actualValue = await AR();
-          verify({ AR: actualValue, ER, validation, reverse: Boolean(reverse) });
+          verify({
+            AR: actualValue,
+            ER,
+            validation,
+            reverse: Boolean(reverse),
+            soft: opts?.soft ?? false
+          });
           clearInterval(intervalId);
           resolve();
         } catch (err: any) {
