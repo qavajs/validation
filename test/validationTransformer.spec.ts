@@ -402,8 +402,14 @@ test('should throw AssertionError in case of hard error', () => {
   expect(catcher).to.throw(AssertionError, "Fail: expected 1 to equal 2");
 });
 
-test('should throw AssertionError in case of soft error', () => {
+test('should throw SoftAssertionError in case of soft error', () => {
   const validation = getValidation('to equal', { soft: true });
+  const catcher = () => validation(1, 2);
+  expect(catcher).to.throw(SoftAssertionError, "Fail: expected 1 to equal 2");
+});
+
+test('should throw SoftAssertionError in case softly prefix', () => {
+  const validation = getValidation('to softly equal', { soft: true });
   const catcher = () => validation(1, 2);
   expect(catcher).to.throw(SoftAssertionError, "Fail: expected 1 to equal 2");
 });

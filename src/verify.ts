@@ -71,10 +71,11 @@ export const validations = {
 const isClause = '(?:is |do |does |to )?';
 const notClause = '(?<reverse>not |to not )?';
 const toBeClause = '(?:to )?(?:be )?';
+const softlyClause = '(?<soft>softly )?';
 const validationClause = `(?:(?<validation>${Object.values(validations).join('|')})(?:s|es| to)?)`;
 
-export const validationExtractRegexp = new RegExp(`^${isClause}${notClause}${toBeClause}${validationClause}$`);
-export const validationRegexp = new RegExp(`(${isClause}${notClause}${toBeClause}${validationClause})`);
+export const validationExtractRegexp = new RegExp(`^${isClause}${notClause}${toBeClause}${softlyClause}${validationClause}$`);
+export const validationRegexp = new RegExp(`(${isClause}${notClause}${toBeClause}${softlyClause}${validationClause})`);
 
 type VerifyInput = {
   AR: any;
@@ -123,16 +124,18 @@ export function verify({ AR, ER, validation, reverse, soft }: VerifyInput): void
 export function getValidation(validationType: string, options?: { soft: boolean }): (AR: any, ER: any) => void {
   const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`Validation '${validationType}' is not supported`);
-  const { reverse, validation } = match.groups as {[p: string]: string};
+  const { reverse, validation, soft } = match.groups as {[p: string]: string};
+  const softProp = options?.soft || !!soft;
   return function (AR: any, ER: any) {
-    verify({ AR, ER, validation, reverse: Boolean(reverse), soft: options?.soft ?? false });
+    verify({ AR, ER, validation, reverse: Boolean(reverse), soft: softProp });
   };
 }
 
-export function getPollValidation(validationType: string, opts?: { soft: boolean }): (AR: any, ER: any, options?: { timeout?: number, interval?: number }) => Promise<unknown> {
+export function getPollValidation(validationType: string, options?: { soft: boolean }): (AR: any, ER: any, options?: { timeout?: number, interval?: number }) => Promise<unknown> {
   const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`Poll validation '${validationType}' is not supported`);
-  const { reverse, validation } = match.groups as {[p: string]: string};
+  const { reverse, validation, soft } = match.groups as {[p: string]: string};
+  const softProp = options?.soft || !!soft;
   return async function (AR: any, ER: any, options?: { timeout?: number, interval?: number }) {
     const timeout = options?.timeout ?? 5000;
     const interval = options?.interval ?? 500;
@@ -147,7 +150,7 @@ export function getPollValidation(validationType: string, opts?: { soft: boolean
             ER,
             validation,
             reverse: Boolean(reverse),
-            soft: opts?.soft ?? false
+            soft: softProp
           });
           clearInterval(intervalId);
           resolve();
