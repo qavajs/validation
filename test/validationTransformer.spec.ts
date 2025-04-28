@@ -1,6 +1,6 @@
-import { expect } from 'chai';
+import { AssertionError, expect } from 'chai';
 import { test } from 'vitest';
-import { getValidation } from '../src/verify';
+import { getValidation, SoftAssertionError } from '../src/verify';
 
 type TestParams = {
   testName: string;
@@ -394,4 +394,16 @@ test.each(tests)('$testName', ({ validation, positiveArgs, negativeArgs, expecte
 test('should throw an error if validation is not supported', () => {
   const catcher = () => getValidation('to be cool');
   expect(catcher).to.throw("Validation 'to be cool' is not supported");
+});
+
+test('should throw AssertionError in case of hard error', () => {
+  const validation = getValidation('to equal');
+  const catcher = () => validation(1, 2);
+  expect(catcher).to.throw(AssertionError, "Fail: expected 1 to equal 2");
+});
+
+test('should throw AssertionError in case of soft error', () => {
+  const validation = getValidation('to equal', { soft: true });
+  const catcher = () => validation(1, 2);
+  expect(catcher).to.throw(SoftAssertionError, "Fail: expected 1 to equal 2");
 });
