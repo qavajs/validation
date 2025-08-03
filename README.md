@@ -1,10 +1,12 @@
 # @qavajs/validation
 
-`npm install @qavajs/validation`
+```
+npm install @qavajs/validation
+```
 
 @qavajs library that transforms plain english definition to validation functions
 
-Lib supports following validations:
+Library supports following validations:
 * equal - not strict equal (==)
 * strictly equal - strict equal (===)
 * deeply equal - deep equal (chai eql)
@@ -19,8 +21,10 @@ Lib supports following validations:
 * match schema - match [ajv](https://www.npmjs.com/package/ajv) schema
 * case insensitive equal - not strict equal (==) with casting to lower case 
 
-All validations can be negated adding _not_ word.
+All validations can be negated adding `not` word.
 
 ## Test
 
-`npm run test`
+```
+npm run test
+```
