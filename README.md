@@ -29,6 +29,7 @@ This library supports a variety of validation types, which can all be negated by
   - **`match`**: Validates if a string matches a regular expression.
   - **`have type`**: Checks the type of a variable (e.g., `string`, `number`, `boolean`).
   - **`match schema`**: Validates data against an [ajv](https://www.npmjs.com/package/ajv) schema, which is useful for complex object validation.
+  - **`satisfy`**: verify user-defined expectation provided as predicate
 
 ## Test
 

@@ -381,6 +381,13 @@ const tests: Array<TestParams> = [
     negativeArgs: ['some text', 'Some Text'],
     expectedError: 'expected \'some text\' to not equal \'Some Text\'',
   },
+  {
+    testName: 'satisfy',
+    validation: 'satisfy',
+    positiveArgs: [1, (arg: number) => [1, 2].includes(arg)],
+    negativeArgs: [1, (arg: number) => [3, 4].includes(arg)],
+    expectedError: 'expected 1 to satisfy \'(arg) => [3, 4].includes(arg)\'',
+  },
 ];
 
 test.each(tests)('$testName', ({ validation, positiveArgs, negativeArgs, expectedError }: TestParams) => {

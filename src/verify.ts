@@ -1,4 +1,4 @@
-import { expect, Assertion, AssertionError} from 'chai';
+import { expect, Assertion, AssertionError } from 'chai';
 import Ajv from 'ajv'
 
 export class SoftAssertionError extends AssertionError {
@@ -50,6 +50,18 @@ Assertion.addMethod('matchSchema', function (schema) {
   );
 });
 
+Assertion.addMethod('satisfy', function (predicate: (arg: any) => boolean) {
+  const actual = this._obj;
+
+  this.assert(
+      predicate(actual),
+      'expected #{this} to satisfy #{exp}',
+      'expected #{this} to not satisfy #{exp}',
+      predicate.toString(),
+      actual
+  );
+});
+
 export const validations = {
   EQUAL: 'equal',
   DEEPLY_EQUAL: 'deeply equal',
@@ -66,6 +78,7 @@ export const validations = {
   HAVE_PROPERTY: 'have property',
   MATCH_SCHEMA: 'match schema',
   CASE_INSENSITIVE_EQUAL: 'case insensitive equal',
+  SATISFY: 'satisfy'
 };
 
 const isClause = '(?:is |do |does |to )?';
@@ -103,6 +116,7 @@ const validationFns = {
   [validations.HAVE_PROPERTY]: (expectClause: any, ER: string) => expectClause.have.property(ER),
   [validations.MATCH_SCHEMA]: (expectClause: any, ER: string) => expectClause.matchSchema(ER),
   [validations.CASE_INSENSITIVE_EQUAL]: (expectClause: any, ER: any) => expectClause.caseInsensitiveEqual(ER),
+  [validations.SATISFY]: (expectClause: any, ER: any) => expectClause.satisfy(ER),
 };
 
 /**
