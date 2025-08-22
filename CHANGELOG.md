@@ -12,6 +12,20 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## 1.3.0
+- :rocket: added `to satisfy` validation to verify user-defined expectation provided as predicate
+```Gherkin
+Then I expect '$value' to satisfy '$either(1, 2)'
+```
+where `$either` is a function
+```typescript
+function either(...expected) {
+    return function (actual) {
+        return expected.includes(actual)
+    }
+}
+```
+
 ## 1.2.1
 - :rocket: added capability to pass `softly` prefix and throw `SoftAssertionError`
 
