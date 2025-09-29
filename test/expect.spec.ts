@@ -67,7 +67,7 @@ describe('Polling assertions', () => {
         let value = 0;
         setTimeout(() => { value = 200; }, 1500);
 
-        await expect.poll(() => value, { interval: 500, timeout: 5000 }).toBe(200);
+        await expect(() => value).poll({ interval: 500, timeout: 5000 }).toEqual(200);
     });
 });
 

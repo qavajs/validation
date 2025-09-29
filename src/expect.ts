@@ -58,10 +58,7 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         return this.isSoft ? SoftAssertionError : AssertionError;
     }
 
-    poll(
-        this: Target extends (...args: any) => any ? Expect<Target, Matcher> : never,
-        { timeout, interval }: { timeout?: number; interval?: number } = {}
-    ): Expect<Target, Matcher> {
+    poll({ timeout, interval }: { timeout?: number; interval?: number } = {}): this {
         if (typeof this.received !== 'function') {
             throw new TypeError('Provided value must be a function');
         }
