@@ -1,16 +1,29 @@
+class AssertionError extends Error {
+    name: string = 'AssertionError';
+}
+
+class SoftAssertionError extends AssertionError {
+    name: string = 'SoftAssertionError';
+}
+
 type MatcherContext<Target> = {
     received: Target;
     isNot: boolean;
     isSoft: boolean;
-    isPoll: boolean
+    isPoll: boolean;
 };
+
 type MatcherResult = {
     pass: boolean;
     message: string;
-}
+};
+
+type MatcherReturn = MatcherResult | Promise<MatcherResult>;
+
 type MatcherFn<Target = any, Args extends any[] = any[]> = (
-    this: MatcherContext<Target>, ...rest: Args
-) => MatcherResult;
+    this: MatcherContext<Target>,
+    ...rest: Args
+) => MatcherReturn;
 
 type MatcherMap = Record<string, MatcherFn>;
 
@@ -22,7 +35,10 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
     pollConfiguration = { timeout: 5000, interval: 100 };
     isNot: boolean = false;
 
-    constructor(public received: Target, configuration?: { soft?: boolean; poll?: boolean; not?: boolean }) {
+    constructor(
+        public received: Target,
+        configuration?: { soft?: boolean; poll?: boolean; not?: boolean }
+    ) {
         this.isSoft = configuration?.soft ?? false;
         this.isPoll = configuration?.poll ?? false;
         this.isNot = configuration?.not ?? false;
@@ -38,12 +54,16 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         return this;
     }
 
+    get Error(): typeof AssertionError {
+        return this.isSoft ? SoftAssertionError : AssertionError;
+    }
+
     poll(
         this: Target extends (...args: any) => any ? Expect<Target, Matcher> : never,
-        {timeout, interval}: { timeout?: number; interval?: number } = {}
+        { timeout, interval }: { timeout?: number; interval?: number } = {}
     ): Expect<Target, Matcher> {
-        if (typeof this.received !== "function") {
-            throw new TypeError("Provided value must be a function");
+        if (typeof this.received !== 'function') {
+            throw new TypeError('Provided value must be a function');
         }
         this.pollConfiguration.timeout = timeout ?? 5000;
         this.pollConfiguration.interval = interval ?? 100;
@@ -61,16 +81,31 @@ function createExpect<Matcher extends MatcherMap = {}>() {
                     return Reflect.get(target, prop, receiver);
                 }
                 if (customMatchers[prop as string]) {
-                    return (expected: any) => {
+                    return (...expected: any[]) => {
                         const matcher = customMatchers[prop as string] as MatcherFn<Target>;
-                        const { pass, message } = matcher.call(target, expected);
-                        if (target.isNot === pass) throw new Error(message)
+                        const result = matcher.call(target, ...expected);
+
+                        if (result instanceof Promise) {
+                            return result.then(({ pass, message }) => {
+                                if (target.isNot === pass) throw new target.Error(message);
+                                return receiver; // chainable Promise
+                            });
+                        } else {
+                            const { pass, message } = result;
+                            if (target.isNot === pass) throw new target.Error(message);
+                            return receiver; // chainable sync
+                        }
                     };
                 }
                 return undefined;
             },
         }) as Expect<Target, Matcher> & {
-            [Key in keyof Matcher]: Matcher[Key] extends MatcherFn<Target, infer Args> ? (...expected: Args) => Expect<Target, Matcher> : never;
+            [Key in keyof Matcher]: Matcher[Key] extends MatcherFn<Target, infer Args>
+                ? (...expected: Args) =>
+                    ReturnType<Matcher[Key]> extends Promise<any>
+                        ? Promise<Expect<Target, Matcher>>
+                        : Expect<Target, Matcher>
+                : never;
         };
     }
 

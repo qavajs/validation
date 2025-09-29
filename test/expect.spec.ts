@@ -8,23 +8,35 @@ import { test, describe, expect as vitestExpect } from 'vitest';
 const expect = base.extend({
     toEqual(expected: any) {
         const pass = expected === this.received;
-        const message = pass ? `expected ${this.received} not to equal ${expected}` : `expected ${this.received} to equal ${expected}`;
+        const message = pass
+            ? `expected ${this.received} not to equal ${expected}`
+            : `expected ${this.received} to equal ${expected}`;
         return { pass, message };
     },
     toContain(expected: string) {
         const pass = this.received.includes(expected);
-        const message = pass ? `expected ${this.received} not to contain ${expected}` : `expected ${this.received} to contain ${expected}`;
+        const message = pass
+            ? `expected ${this.received} not to contain ${expected}`
+            : `expected ${this.received} to contain ${expected}`;
+        return { pass, message };
+    },
+    async toSatisfy(expected: (received: any) => boolean) {
+        const pass = expected(this.received);
+        const message = pass
+            ? `expected ${this.received} not to satisfy ${expected}`
+            : `expected ${this.received} to satisfy ${expected}`;
         return { pass, message };
     }
 })
 describe('Basic assertions', () => {
     test('toEqual and not.toEqual', () => {
-        expect(1).toEqual(1);
-        expect(2).not.toEqual(1);
+        expect(1).toEqual(12);
+        expect(2).not.toEqual(2);
     });
 
     test('toContain', () => {
         expect('string').toContain('str');
+        expect('string').not.toContain('str2');
     });
 
     test('soft assertions', () => {
@@ -32,9 +44,9 @@ describe('Basic assertions', () => {
         expect(2).soft.not.toEqual(3);
     });
 
-    test('custom matcher toSatisfy', () => {
-        expect(3).toSatisfy((value: number) => value % 2 !== 0);
-        expect(4).not.toSatisfy((value: number) => value % 2 !== 0);
+    test('custom matcher toSatisfy', async () => {
+        await expect(3).toSatisfy((value: number) => value % 2 !== 0);
+        await expect(4).not.toSatisfy((value: number) => value % 2 !== 0);
     });
 });
 
