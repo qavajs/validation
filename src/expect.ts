@@ -62,6 +62,7 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         if (typeof this.received !== 'function') {
             throw new TypeError('Provided value must be a function');
         }
+        this.isPoll = true;
         this.pollConfiguration.timeout = timeout ?? 5000;
         this.pollConfiguration.interval = interval ?? 100;
         return this;
@@ -80,17 +81,41 @@ function createExpect<Matcher extends MatcherMap = {}>() {
                 if (customMatchers[prop as string]) {
                     return (...expected: any[]) => {
                         const matcher = customMatchers[prop as string] as MatcherFn<Target>;
-                        const result = matcher.call(target, ...expected);
 
+                        if (target.isPoll) {
+                            const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+                            const { timeout, interval } = target.pollConfiguration;
+
+                            return (async () => {
+                                const start = Date.now();
+                                while (true) {
+                                    try {
+                                        const received = await (target.received as () => Promise<any>)();
+                                        const { pass, message } = await matcher.call({ ...target, received }, ...expected);
+                                        if (target.isNot !== pass) {
+                                            return;
+                                        }
+                                        if (Date.now() - start >= timeout) {
+                                            throw new target.Error(message);
+                                        }
+                                    } catch (err) {
+                                        if (Date.now() - start >= timeout) {
+                                            throw err;
+                                        }
+                                    }
+                                    await sleep(interval);
+                                }
+                            })();
+                        }
+
+                        const result = matcher.call(target, ...expected);
                         if (result instanceof Promise) {
                             return result.then(({ pass, message }) => {
                                 if (target.isNot === pass) throw new target.Error(message);
-                                return receiver; // chainable Promise
                             });
                         } else {
                             const { pass, message } = result;
                             if (target.isNot === pass) throw new target.Error(message);
-                            return receiver; // chainable sync
                         }
                     };
                 }
