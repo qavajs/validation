@@ -30,8 +30,8 @@ const expect = base.extend({
 })
 describe('Basic assertions', () => {
     test('toEqual and not.toEqual', () => {
-        expect(1).toEqual(12);
-        expect(2).not.toEqual(2);
+        expect(1).toEqual(1);
+        expect(2).not.toEqual(1);
     });
 
     test('toContain', () => {
@@ -67,7 +67,7 @@ describe('Polling assertions', () => {
         let value = 0;
         setTimeout(() => { value = 200; }, 1500);
 
-        await expect(() => value).poll({ interval: 500, timeout: 5000 }).toEqual(200);
+        await expect(() => value).poll({ interval: 500, timeout: 5000 }).toEqual(100);
     });
 });
 

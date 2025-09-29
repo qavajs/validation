@@ -73,60 +73,63 @@ function createExpect<Matcher extends MatcherMap = {}>() {
     function expect<Target>(target: Target) {
         const instance = new Expect<Target, Matcher>(target);
 
+        const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+
         return new Proxy(instance, {
             get(target, prop: string | symbol, receiver) {
-                if (prop in target) {
-                    return Reflect.get(target, prop, receiver);
-                }
-                if (customMatchers[prop as string]) {
-                    return (...expected: any[]) => {
-                        const matcher = customMatchers[prop as string] as MatcherFn<Target>;
+                if (prop in target) return Reflect.get(target, prop, receiver);
 
-                        if (target.isPoll) {
-                            const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+                const matcher = customMatchers[prop as string] as MatcherFn<Target>;
+                if (!matcher) throw new TypeError(`${prop as string} matcher not found`);
+
+                return (...expected: any[]) => {
+                    if (target.isPoll) {
+                        return (async () => {
                             const { timeout, interval } = target.pollConfiguration;
+                            const start = Date.now();
 
-                            return (async () => {
-                                const start = Date.now();
-                                while (true) {
-                                    try {
-                                        const received = await (target.received as () => Promise<any>)();
-                                        const { pass, message } = await matcher.call({ ...target, received }, ...expected);
-                                        if (target.isNot !== pass) {
-                                            return;
-                                        }
-                                        if (Date.now() - start >= timeout) {
-                                            throw new target.Error(message);
-                                        }
-                                    } catch (err) {
-                                        if (Date.now() - start >= timeout) {
-                                            throw err;
-                                        }
+                            while (true) {
+                                try {
+                                    const received = await (target.received as any)()
+
+                                    const { pass, message } = await matcher.call(
+                                        { ...target, received },
+                                        ...expected
+                                    );
+
+                                    if (target.isNot !== pass) return receiver;
+
+                                    if (Date.now() - start >= timeout) {
+                                        throw new target.Error(message);
                                     }
-                                    await sleep(interval);
+                                } catch (err) {
+                                    if (Date.now() - start >= timeout) throw err;
                                 }
-                            })();
-                        }
+                                await sleep(interval);
+                            }
+                        })();
+                    }
 
-                        const result = matcher.call(target, ...expected);
-                        if (result instanceof Promise) {
-                            return result.then(({ pass, message }) => {
-                                if (target.isNot === pass) throw new target.Error(message);
-                            });
-                        } else {
-                            const { pass, message } = result;
+                    const result = matcher.call(target, ...expected);
+
+                    if (result instanceof Promise) {
+                        return result.then(({ pass, message }) => {
                             if (target.isNot === pass) throw new target.Error(message);
-                        }
-                    };
-                }
-                return undefined;
+                        });
+                    } else {
+                        const { pass, message } = result;
+                        if (target.isNot === pass) throw new target.Error(message);
+                    }
+                };
             },
         }) as Expect<Target, Matcher> & {
             [Key in keyof Matcher]: Matcher[Key] extends MatcherFn<Target, infer Args>
                 ? (...expected: Args) =>
                     ReturnType<Matcher[Key]> extends Promise<any>
                         ? Promise<Expect<Target, Matcher>>
-                        : Expect<Target, Matcher>
+                        : Target extends (...args: any) => any
+                            ? Promise<Expect<Target, Matcher>>
+                            : Expect<Target, Matcher>
                 : never;
         };
     }
