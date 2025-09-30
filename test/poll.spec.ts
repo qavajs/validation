@@ -44,7 +44,7 @@ test('poll to contain', async () => {
 test('poll timeout', async () => {
     const actualFn = asyncActualValueString();
     const validation = getPollValidation('to equal');
-    await expect(() => validation(actualFn, 'fail', { timeout: 1000, interval: 500 })).rejects.toThrow("Fail: expected 'uno' to equal 'fail'")
+    await expect(() => validation(actualFn, 'fail', { timeout: 1000, interval: 500 })).rejects.toThrow("expected 'uno' to equal 'fail'")
 });
 
 test('poll delay greater than interval', async () => {

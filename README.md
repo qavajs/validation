@@ -31,6 +31,16 @@ This library supports a variety of validation types, which can all be negated by
   - **`match schema`**: Validates data against an [ajv](https://www.npmjs.com/package/ajv) schema, which is useful for complex object validation.
   - **`satisfy`**: verify user-defined expectation provided as predicate
 
+
+## Standalone `expect`
+You can use standalone extendable `expect` with many assertions out of the box
+
+```typescript
+import { expect } from '@qavajs/validation';
+
+expect(1).toEqual(1);
+```
+
 ## Test
 
 To run the test suite for this package, use the following command:

@@ -1,66 +1,5 @@
-import { expect, Assertion, AssertionError } from 'chai';
-import Ajv from 'ajv'
-
-export class SoftAssertionError extends AssertionError {
-  name = 'SoftAssertionError';
-}
-
-Assertion.addMethod('notStrictEqual', function (ER) {
-  const obj = this._obj;
-
-  this.assert(
-      obj == ER,
-      'expected #{this} to equal #{exp}',
-      'expected #{this} to not equal #{exp}',
-      ER,
-      obj
- );
-});
-
-Assertion.addMethod('caseInsensitiveEqual', function (ER) {
-  const obj = this._obj;
-
-  this.assert(
-      obj.toLowerCase() == ER.toLowerCase(),
-      'expected #{this} to equal #{exp}',
-      'expected #{this} to not equal #{exp}',
-      ER,
-      obj
-  );
-});
-
-Assertion.addMethod('matchSchema', function (schema) {
-  const obj = this._obj;
-  const ajv = new Ajv();
-  const validate = ajv.compile(schema);
-  const isValid = validate(obj);
-  const messages = validate.errors
-      ? validate.errors?.map(err => `${err.instancePath} ${err.message} (${err.schemaPath})`)
-      : [];
-  const errors = [
-    'object does not match schema',
-    ...messages
-  ].join('\n');
-  this.assert(
-      isValid,
-      errors,
-      'expected #{this} to not match schema #{exp}',
-      '',
-      ''
-  );
-});
-
-Assertion.addMethod('satisfy', function (predicate: (arg: any) => boolean) {
-  const actual = this._obj;
-
-  this.assert(
-      predicate(actual),
-      'expected #{this} to satisfy #{exp}',
-      'expected #{this} to not satisfy #{exp}',
-      predicate.toString(),
-      actual
-  );
-});
+import { expect } from './matchers';
+export { expect };
 
 export const validations = {
   EQUAL: 'equal',
@@ -91,66 +30,60 @@ export const validationExtractRegexp = new RegExp(`^${isClause}${notClause}${toB
 export const validationRegexp = new RegExp(`(${isClause}${notClause}${toBeClause}${softlyClause}${validationClause})`);
 
 type VerifyInput = {
-  AR: any;
-  ER: any;
+  received: any;
+  expected: any;
   validation: string;
   reverse: boolean;
   soft: boolean;
 };
 
-const aboveFn = (expectClause: any, ER: any) => expectClause.above(toNumber(ER));
-const belowFn = (expectClause: any, ER: any) => expectClause.below(toNumber(ER));
-const validationFns = {
-  [validations.EQUAL]: (expectClause: any, ER: any) => expectClause.notStrictEqual(ER),
-  [validations.STRICTLY_EQUAL]: (expectClause: any, ER: any) => expectClause.equal(ER),
-  [validations.DEEPLY_EQUAL]: (expectClause: any, ER: any) => expectClause.eql(ER),
-  [validations.HAVE_MEMBERS]: (expectClause: any, ER: any) => expectClause.have.members(ER),
-  [validations.MATCH]: (expectClause: any, ER: any) => expectClause.match(toRegexp(ER)),
-  [validations.CONTAIN]: (expectClause: any, ER: any) => expectClause.contain(ER),
+const aboveFn = (expectClause: any, expected: any) => expectClause.toBeGreaterThan(toNumber(expected));
+const belowFn = (expectClause: any, expected: any) => expectClause.toBeLessThan(toNumber(expected));
+const validationFns: Record<string, (expectClause: any, expected: any) => void> = {
+  [validations.EQUAL]: (expectClause, expected: any) => expectClause.toSimpleEqual(expected),
+  [validations.STRICTLY_EQUAL]: (expectClause: any, expected: any) => expectClause.toEqual(expected),
+  [validations.DEEPLY_EQUAL]: (expectClause: any, expected: any) => expectClause.toDeepEqual(expected),
+  [validations.HAVE_MEMBERS]: (expectClause: any, expected: any) => expectClause.toHaveMembers(expected),
+  [validations.MATCH]: (expectClause: any, expected: any) => expectClause.toMatch(toRegexp(expected)),
+  [validations.CONTAIN]: (expectClause: any, expected: any) => expectClause.toContain(expected),
   [validations.ABOVE]: aboveFn,
   [validations.BELOW]: belowFn,
   [validations.GREATER]: aboveFn,
   [validations.LESS]: belowFn,
-  [validations.HAVE_TYPE]: (expectClause: any, ER: string) => expectClause.a(ER),
-  [validations.INCLUDE_MEMBERS]: (expectClause: any, ER: string) => expectClause.include.members(ER),
-  [validations.HAVE_PROPERTY]: (expectClause: any, ER: string) => expectClause.have.property(ER),
-  [validations.MATCH_SCHEMA]: (expectClause: any, ER: string) => expectClause.matchSchema(ER),
-  [validations.CASE_INSENSITIVE_EQUAL]: (expectClause: any, ER: any) => expectClause.caseInsensitiveEqual(ER),
-  [validations.SATISFY]: (expectClause: any, ER: any) => expectClause.satisfy(ER),
+  [validations.HAVE_TYPE]: (expectClause: any, expected: string) => expectClause.toHaveType(expected),
+  [validations.INCLUDE_MEMBERS]: (expectClause: any, expected: string) => expectClause.toIncludeMembers(expected),
+  [validations.HAVE_PROPERTY]: (expectClause: any, expected: string) => expectClause.toHaveProperty(expected),
+  [validations.MATCH_SCHEMA]: (expectClause: any, expected: string) => expectClause.toMatchSchema(expected),
+  [validations.CASE_INSENSITIVE_EQUAL]: (expectClause: any, expected: any) => expectClause.toCaseInsensitiveEqual(expected),
+  [validations.SATISFY]: (expectClause: any, expected: any) => expectClause.toSatisfy(expected),
 };
 
 /**
  * Basic verification function
  * @param {VerifyInput} object with all needed data for validation
  */
-export function verify({ AR, ER, validation, reverse, soft }: VerifyInput): void {
-  const prefix = 'Fail';
-  const expectClause = reverse ? expect(AR, prefix).to.not : expect(AR, prefix).to;
+export function verify({ received, expected, validation, reverse, soft }: VerifyInput): void {
+  const expectClause = expect(received).configure({ not: reverse, soft });
   const validate = validationFns[validation];
-  try {
-    validate(expectClause, ER);
-  } catch (err) {
-    if (soft && err instanceof Error) throw new SoftAssertionError(err.message, { cause: err });
-    throw err;
-  }
+  validate(expectClause, expected);
 }
 
-export function getValidation(validationType: string, options?: { soft: boolean }): (AR: any, ER: any) => void {
+export function getValidation(validationType: string, options?: { soft: boolean }): (AR: any, expected: any) => void {
   const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`Validation '${validationType}' is not supported`);
   const { reverse, validation, soft } = match.groups as {[p: string]: string};
   const softProp = options?.soft || !!soft;
-  return function (AR: any, ER: any) {
-    verify({ AR, ER, validation, reverse: Boolean(reverse), soft: softProp });
+  return function (received: any, expected: any) {
+    verify({ received, expected, validation, reverse: Boolean(reverse), soft: softProp });
   };
 }
 
-export function getPollValidation(validationType: string, options?: { soft: boolean }): (AR: any, ER: any, options?: { timeout?: number, interval?: number }) => Promise<unknown> {
+export function getPollValidation(validationType: string, options?: { soft: boolean }): (AR: any, expected: any, options?: { timeout?: number, interval?: number }) => Promise<unknown> {
   const match = validationExtractRegexp.exec(validationType);
   if (!match) throw new Error(`Poll validation '${validationType}' is not supported`);
   const { reverse, validation, soft } = match.groups as {[p: string]: string};
   const softProp = options?.soft || !!soft;
-  return async function (AR: any, ER: any, options?: { timeout?: number, interval?: number }) {
+  return async function (received: any, expected: any, options?: { timeout?: number, interval?: number }) {
     const timeout = options?.timeout ?? 5000;
     const interval = options?.interval ?? 500;
     let lastError: Error = new Error(`Promise was not settled before timeout`);
@@ -158,10 +91,10 @@ export function getPollValidation(validationType: string, options?: { soft: bool
     const evaluatePromise = new Promise<void>(resolve => {
       intervalId = setInterval(async () => {
         try {
-          const actualValue = await AR();
+          const actualValue = await received();
           verify({
-            AR: actualValue,
-            ER,
+            received: actualValue,
+            expected,
             validation,
             reverse: Boolean(reverse),
             soft: softProp

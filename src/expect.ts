@@ -1,10 +1,10 @@
 import util from 'node:util';
 
-class AssertionError extends Error {
+export class AssertionError extends Error {
     name: string = 'AssertionError';
 }
 
-class SoftAssertionError extends AssertionError {
+export class SoftAssertionError extends AssertionError {
     name: string = 'SoftAssertionError';
 }
 
@@ -14,6 +14,7 @@ type MatcherContext<Target> = {
     isSoft: boolean;
     isPoll: boolean;
     formatMessage(received: any, expected: any, assert: string, isNot: boolean): string;
+    asString(value: any): string;
 };
 
 type MatcherResult = {
@@ -31,11 +32,6 @@ type MatcherFn<Target = any, Args extends any[] = any[]> = (
 type MatcherMap = Record<string, MatcherFn>;
 
 const customMatchers: MatcherMap = {};
-
-const asString = (value: any) => {
-    if (typeof value === 'function') return value.toString();
-    return util.inspect(value, { depth: 1, compact: true })
-};
 
 export class Expect<Target, Matcher extends MatcherMap = {}> {
     isSoft: boolean = false;
@@ -82,6 +78,15 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         return this;
     }
 
+    configure(options: { not?: boolean, soft?: boolean, poll?: boolean, timeout?: number; interval?: number }): this {
+        this.isNot = options.not ?? this.isNot;
+        this.isSoft = options.soft ?? this.isSoft;
+        this.isPoll = options.poll ?? this.isPoll;
+        this.pollConfiguration.timeout = options.timeout ?? this.pollConfiguration.timeout;
+        this.pollConfiguration.interval = options.interval ?? this.pollConfiguration.interval;
+        return this;
+    }
+
     /**
      * Format error message
      * @param received
@@ -95,9 +100,13 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         assert: string,
         isNot: boolean
     ) {
-        return `expected ${asString(received)} ${isNot ? 'not ': ''}${assert} ${asString(expected)}\n`
+        return `expected ${this.asString(received)} ${isNot ? 'not ': ''}${assert} ${this.asString(expected)}`
     }
 
+    asString(value: any) {
+        if (typeof value === 'function') return value.toString();
+        return util.inspect(value, { depth: 1, compact: true })
+    };
 }
 
 function createExpect<Matcher extends MatcherMap = {}>() {
@@ -128,7 +137,7 @@ function createExpect<Matcher extends MatcherMap = {}>() {
                                         ...expected
                                     );
 
-                                    if (target.isNot !== pass) return receiver;
+                                    if (target.isNot !== pass) return;
 
                                     if (Date.now() - start >= timeout) {
                                         throw new target.Error(message);
