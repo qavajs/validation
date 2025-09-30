@@ -1,5 +1,4 @@
 import { expect } from './matchers';
-export { expect };
 
 export const validations = {
   EQUAL: 'equal',
@@ -137,10 +136,12 @@ export async function poll(fn: Function, options?: { timeout?: number, interval?
   return Promise.race([evaluatePromise, timeoutPromise]);
 }
 
+export { expect };
+
 function toNumber(n: any): number {
-  const parsedNumber = parseFloat(n);
+  const parsedNumber = Number.parseFloat(n);
   if (Number.isNaN(parsedNumber)) {
-    throw new Error(`${n} is not a number`);
+    throw new TypeError(`${n} is not a number`);
   }
   return parsedNumber;
 }

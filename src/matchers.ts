@@ -93,7 +93,7 @@ export const expect = base.extend({
     },
 
     toContain(expected: any) {
-        const pass = (this.received as any).includes(expected);
+        const pass = this.received.includes(expected);
         const message = this.formatMessage(this.received, expected, 'to contain', this.isNot);
         return { pass, message };
     },
@@ -180,11 +180,12 @@ export const expect = base.extend({
 
     async toPass() {
         let pass = true;
-        let message = `expected provided function to pass`;
+        let message = `expected provided function to pass, but it failed with:\n`;
         try {
             await this.received();
-        } catch (e) {
+        } catch (e: any) {
             pass = false;
+            message += e.message;
         }
         return { pass, message };
     },

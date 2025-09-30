@@ -77,7 +77,7 @@ describe('expect matchers', () => {
 
     // toBeNaN
     test('toBeNaN', () => {
-        vitestExpect(() => expect(NaN).toBeNaN()).not.toThrow();
+        vitestExpect(() => expect(Number.NaN).toBeNaN()).not.toThrow();
         vitestExpect(() => expect(5).toBeNaN()).toThrow();
     });
 
