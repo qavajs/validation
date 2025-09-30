@@ -1,3 +1,5 @@
+import util from 'node:util';
+
 class AssertionError extends Error {
     name: string = 'AssertionError';
 }
@@ -11,6 +13,7 @@ type MatcherContext<Target> = {
     isNot: boolean;
     isSoft: boolean;
     isPoll: boolean;
+    formatMessage(received: any, expected: any, assert: string, isNot: boolean): string;
 };
 
 type MatcherResult = {
@@ -29,6 +32,11 @@ type MatcherMap = Record<string, MatcherFn>;
 
 const customMatchers: MatcherMap = {};
 
+const asString = (value: any) => {
+    if (typeof value === 'function') return value.toString();
+    return util.inspect(value, { depth: 1, compact: true })
+};
+
 export class Expect<Target, Matcher extends MatcherMap = {}> {
     isSoft: boolean = false;
     isPoll: boolean = false;
@@ -44,11 +52,17 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         this.isNot = configuration?.not ?? false;
     }
 
+    /**
+     * Negates matcher
+     */
     public get not(): this {
         this.isNot = true;
         return this;
     }
 
+    /**
+     * Enables soft matcher
+     */
     public get soft(): this {
         this.isSoft = true;
         return this;
@@ -67,6 +81,23 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         this.pollConfiguration.interval = interval ?? 100;
         return this;
     }
+
+    /**
+     * Format error message
+     * @param received
+     * @param expected
+     * @param assert
+     * @param isNot
+     */
+    formatMessage(
+        received: any,
+        expected: any,
+        assert: string,
+        isNot: boolean
+    ) {
+        return `expected ${asString(received)} ${isNot ? 'not ': ''}${assert} ${asString(expected)}\n`
+    }
+
 }
 
 function createExpect<Matcher extends MatcherMap = {}>() {
@@ -90,10 +121,10 @@ function createExpect<Matcher extends MatcherMap = {}>() {
 
                             while (true) {
                                 try {
-                                    const received = await (target.received as any)()
-
+                                    const pollTarget = Object.create(target);
+                                    pollTarget.received = await (target.received as any)();
                                     const { pass, message } = await matcher.call(
-                                        { ...target, received },
+                                        pollTarget,
                                         ...expected
                                     );
 

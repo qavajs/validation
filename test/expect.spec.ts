@@ -1,41 +1,14 @@
-/**
- * Example use cases for the assertion library with Vitest tests.
- */
-
-import { expect as base } from '../src/expect';
+import { expect } from '../src/matchers';
 import { test, describe, expect as vitestExpect } from 'vitest';
 
-const expect = base.extend({
-    toEqual(expected: any) {
-        const pass = expected === this.received;
-        const message = pass
-            ? `expected ${this.received} not to equal ${expected}`
-            : `expected ${this.received} to equal ${expected}`;
-        return { pass, message };
-    },
-    toContain(expected: string) {
-        const pass = this.received.includes(expected);
-        const message = pass
-            ? `expected ${this.received} not to contain ${expected}`
-            : `expected ${this.received} to contain ${expected}`;
-        return { pass, message };
-    },
-    async toSatisfy(expected: (received: any) => boolean) {
-        const pass = expected(this.received);
-        const message = pass
-            ? `expected ${this.received} not to satisfy ${expected}`
-            : `expected ${this.received} to satisfy ${expected}`;
-        return { pass, message };
-    }
-})
 describe('Basic assertions', () => {
     test('toEqual and not.toEqual', () => {
         expect(1).toEqual(1);
-        expect(2).not.toEqual(1);
+        expect(2).not.toEqual(2);
     });
 
     test('toContain', () => {
-        expect('string').toContain('str');
+        expect('string').toContain('str8');
         expect('string').not.toContain('str2');
     });
 
@@ -52,13 +25,13 @@ describe('Basic assertions', () => {
 
 describe('Promise assertions', () => {
     test('resolves', async () => {
-        const promise = Promise.resolve({ id: 1 });
-        await expect(promise).resolves.toEqual({ id: 1 });
+        const promise = Promise.resolve(1);
+        await expect(promise).toResolveWith(1);
     });
 
     test('rejects', async () => {
         const promise = Promise.reject(new Error('no id'));
-        await expect(promise).rejects.toThrow('no id');
+        await expect(promise).toRejectWith('no id');
     });
 });
 
@@ -67,80 +40,123 @@ describe('Polling assertions', () => {
         let value = 0;
         setTimeout(() => { value = 200; }, 1500);
 
-        await expect(() => value).poll({ interval: 500, timeout: 5000 }).toEqual(100);
+        await expect(() => value).poll({ interval: 500, timeout: 1000 }).toEqual(100);
     });
 });
 
-// Extend example: custom matcher toHaveAmount
-export const extendedExpect = expect.extend({
-    toHaveAmount(this: any, actual: number, expected: number) {
-        const assertionName = 'toHaveAmount';
-        let pass: boolean;
-        let actualValue: any;
-        try {
-            const expectation = this.isNot ? expect(actual).not : expect(actual);
-            expectation.toEqual(expected);
-            pass = true;
-            actualValue = actual;
-        } catch (e: any) {
-            actualValue = e?.actual ?? actual;
-            pass = false;
-        }
-
-        if (this.isNot) pass = !pass;
-
-        const message = pass
-            ? () => `expected not to have amount ${expected}`
-            : () => `expected ${expected}, but got ${actualValue}`;
-
-        return {
-            name: assertionName,
-            pass,
-            message,
-            expected,
-            actual: actualValue
-        };
-    }
-});
-
-// Example usage of extended matcher
-describe('Custom matcher toHaveAmount', () => {
-    test('success', async () => {
-        extendedExpect(100).toHaveAmount(100);
+describe('expect matchers', () => {
+    // toBe
+    test('toBe', () => {
+        vitestExpect(() => expect(5).toBe(5)).not.toThrow();
+        vitestExpect(() => expect(5).toBe(4)).toThrow();
     });
 
-    test('failure', async () => {
-        try {
-            extendedExpect(50).toHaveAmount(100);
-        } catch (e) {
-            expect(e.message()).toContain('expected 100, but got 50');
-        }
-    });
-});
-
-// Additional useful use cases
-describe('Additional useful assertions', () => {
-    test('toBeTruthy and toBeFalsy', () => {
-        expect(true).toBeTruthy();
-        expect(false).toBeFalsy();
+    // toBeGreaterThan
+    test('toBeGreaterThan', () => {
+        vitestExpect(() => expect(10).toBeGreaterThan(5)).not.toThrow();
+        vitestExpect(() => expect(5).toBeGreaterThan(10)).toThrow();
     });
 
-    test('toBeGreaterThan and toBeLessThan', () => {
-        expect(10).toBeGreaterThan(5);
-        expect(5).toBeLessThan(10);
+    // toBeGreaterThanOrEqual
+    test('toBeGreaterThanOrEqual', () => {
+        vitestExpect(() => expect(10).toBeGreaterThanOrEqual(5)).not.toThrow();
+        vitestExpect(() => expect(5).toBeGreaterThanOrEqual(10)).toThrow();
     });
 
-    test('toBeCloseTo', () => {
-        expect(3.1415).toBeCloseTo(3.14, 2);
+    // toBeLessThan
+    test('toBeLessThan', () => {
+        vitestExpect(() => expect(5).toBeLessThan(10)).not.toThrow();
+        vitestExpect(() => expect(10).toBeLessThan(5)).toThrow();
     });
 
+    // toBeLessThanOrEqual
+    test('toBeLessThanOrEqual', () => {
+        vitestExpect(() => expect(5).toBeLessThanOrEqual(10)).not.toThrow();
+        vitestExpect(() => expect(10).toBeLessThanOrEqual(5)).toThrow();
+    });
+
+    // toBeNaN
+    test('toBeNaN', () => {
+        vitestExpect(() => expect(NaN).toBeNaN()).not.toThrow();
+        vitestExpect(() => expect(5).toBeNaN()).toThrow();
+    });
+
+    // toBeNull
+    test('toBeNull', () => {
+        vitestExpect(() => expect(null).toBeNull()).not.toThrow();
+        vitestExpect(() => expect(0).toBeNull()).toThrow();
+    });
+
+    // toBeUndefined
+    test('toBeUndefined', () => {
+        vitestExpect(() => expect(undefined).toBeUndefined()).not.toThrow();
+        vitestExpect(() => expect(null).toBeUndefined()).toThrow();
+    });
+
+    // toBeTruthy
+    test('toBeTruthy', () => {
+        vitestExpect(() => expect(true).toBeTruthy()).not.toThrow();
+        vitestExpect(() => expect(false).toBeTruthy()).toThrow();
+    });
+
+    // toContain
+    test('toContain', () => {
+        vitestExpect(() => expect([1,2,3]).toContain(2)).not.toThrow();
+        vitestExpect(() => expect([1,2,3]).toContain(4)).toThrow();
+        vitestExpect(() => expect('hello world').toContain('world')).not.toThrow();
+    });
+
+    // toContainEqual
+    test('toContainEqual', () => {
+        vitestExpect(() => expect([{a:1}]).toContainEqual({a:1})).not.toThrow();
+        vitestExpect(() => expect([{a:1}]).toContainEqual({a:2})).toThrow();
+    });
+
+    // toEqual
+    test('toEqual', () => {
+        vitestExpect(() => expect(5).toEqual(5)).not.toThrow();
+        vitestExpect(() => expect(5).toEqual(4)).toThrow();
+    });
+
+    // toDeepEqual
+    test('toDeepEqual', () => {
+        vitestExpect(() => expect({a:1,b:2}).toDeepEqual({a:1,b:2})).not.toThrow();
+        vitestExpect(() => expect({a:1,b:2}).toDeepEqual({a:2})).toThrow();
+    });
+
+    // toStrictEqual
+    test('toStrictEqual', () => {
+        class A { x = 1 }
+        vitestExpect(() => expect(new A()).toStrictEqual(new A())).not.toThrow();
+        vitestExpect(() => expect({x:1}).toStrictEqual({x:1})).toThrow(); // different prototype
+    });
+
+    // toHaveLength
+    test('toHaveLength', () => {
+        vitestExpect(() => expect([1,2,3]).toHaveLength(3)).not.toThrow();
+        vitestExpect(() => expect([1,2,3]).toHaveLength(2)).toThrow();
+    });
+
+    // toHaveProperty
     test('toHaveProperty', () => {
-        const obj = { a: { b: 2 } };
-        expect(obj).toHaveProperty('a.b');
+        vitestExpect(() => expect({a:1}).toHaveProperty('a')).not.toThrow();
+        vitestExpect(() => expect({a:1}).toHaveProperty('a',1)).not.toThrow();
+        vitestExpect(() => expect({a:1}).toHaveProperty('a',2)).toThrow();
+        vitestExpect(() => expect({a:1}).toHaveProperty('b')).toThrow();
     });
 
+    // toMatch
+    test('toMatch', () => {
+        vitestExpect(() => expect('hello world').toMatch(/hello/)).not.toThrow();
+        vitestExpect(() => expect('hello world').toMatch('world')).not.toThrow();
+        vitestExpect(() => expect('hello world').toMatch(/bye/)).toThrow();
+    });
+
+    // toThrow
     test('toThrow', () => {
-        expect(() => { throw new Error('fail'); }).toThrow('fail');
-        expect(() => { return 1; }).not.toThrow();
+        vitestExpect(() => expect(() => { throw new Error('fail') }).toThrow()).not.toThrow();
+        vitestExpect(() => expect(() => { throw new Error('fail') }).toThrow('fail')).not.toThrow();
+        vitestExpect(() => expect(() => {}).toThrow()).toThrow();
+        vitestExpect(() => expect(() => { throw new Error('fail') }).toThrow('other')).toThrow();
     });
 });
