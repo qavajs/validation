@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## 1.4.0
+- :rocket: dropped chai dependency in favor of own `expect` implementation
+
 ## 1.3.0
 - :rocket: added `to satisfy` validation to verify user-defined expectation provided as predicate
 ```Gherkin

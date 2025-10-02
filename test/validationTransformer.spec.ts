@@ -1,6 +1,6 @@
-import { AssertionError, expect } from 'chai';
-import { test } from 'vitest';
-import { getValidation, SoftAssertionError } from '../src/verify';
+import { test, expect } from 'vitest';
+import { getValidation } from '../src/verify';
+import { AssertionError, SoftAssertionError } from '../src/expect';
 
 type TestParams = {
   testName: string;
@@ -43,21 +43,21 @@ const tests: Array<TestParams> = [
     validation: 'does not equal',
     positiveArgs: [1, 2],
     negativeArgs: [1, 1],
-    expectedError: 'expected 1 to not equal 1',
+    expectedError: 'expected 1 not to equal 1',
   },
   {
     testName: 'not to equal',
     validation: 'not to equal',
     positiveArgs: [1, 2],
     negativeArgs: [1, 1],
-    expectedError: 'expected 1 to not equal 1',
+    expectedError: 'expected 1 not to equal 1',
   },
   {
-    testName: 'to not equal',
-    validation: 'to not equal',
+    testName: 'not to equal',
+    validation: 'not to equal',
     positiveArgs: [1, 2],
     negativeArgs: [1, 1],
-    expectedError: 'expected 1 to not equal 1',
+    expectedError: 'expected 1 not to equal 1',
   },
   {
     testName: 'strictly equals',
@@ -85,21 +85,21 @@ const tests: Array<TestParams> = [
     validation: 'does not strictly equal',
     positiveArgs: [1, 2],
     negativeArgs: [1, 1],
-    expectedError: 'expected 1 to not equal 1',
+    expectedError: 'expected 1 not to equal 1',
   },
   {
     testName: 'not to strictly equal',
     validation: 'not to strictly equal',
     positiveArgs: [1, 2],
     negativeArgs: [1, 1],
-    expectedError: 'expected 1 to not equal 1',
+    expectedError: 'expected 1 not to equal 1',
   },
   {
-    testName: 'to not strictly equal',
-    validation: 'to not strictly equal',
+    testName: 'not to strictly equal',
+    validation: 'not to strictly equal',
     positiveArgs: [1, 2],
     negativeArgs: [1, 1],
-    expectedError: 'expected 1 to not equal 1',
+    expectedError: 'expected 1 not to equal 1',
   },
   {
     testName: 'deeply equals',
@@ -127,28 +127,28 @@ const tests: Array<TestParams> = [
     validation: 'does not deeply equal',
     positiveArgs: [{x: 1}, {x: 2}],
     negativeArgs: [{x: 1}, {x: 1}],
-    expectedError: 'expected { x: 1 } to not deeply equal { x: 1 }',
+    expectedError: 'expected { x: 1 } not to deeply equal { x: 1 }',
   },
   {
     testName: 'does not deeply equal array',
     validation: 'does not deeply equal',
     positiveArgs: [[1], [2]],
     negativeArgs: [[], []],
-    expectedError: 'expected [] to not deeply equal []',
+    expectedError: 'expected [] not to deeply equal []',
   },
   {
     testName: 'not to deeply equal',
     validation: 'not to deeply equal',
     positiveArgs: [{x: 1}, {x: 2}],
     negativeArgs: [{x: 1}, {x: 1}],
-    expectedError: 'expected { x: 1 } to not deeply equal { x: 1 }',
+    expectedError: 'expected { x: 1 } not to deeply equal { x: 1 }',
   },
   {
-    testName: 'to not deeply equal',
-    validation: 'to not deeply equal',
+    testName: 'not to deeply equal',
+    validation: 'not to deeply equal',
     positiveArgs: [{x: 1}, {x: 2}],
     negativeArgs: [{x: 1}, {x: 1}],
-    expectedError: 'expected { x: 1 } to not deeply equal { x: 1 }',
+    expectedError: 'expected { x: 1 } not to deeply equal { x: 1 }',
   },
   {
     testName: 'matches',
@@ -176,21 +176,21 @@ const tests: Array<TestParams> = [
     validation: 'contains',
     positiveArgs: ['expression', 'expr'],
     negativeArgs: ['expression', 'esp'],
-    expectedError: "expected 'expression' to include 'esp'",
+    expectedError: "expected 'expression' to contain 'esp'",
   },
   {
     testName: 'contains with type cast',
     validation: 'contains',
     positiveArgs: ['111111', 1],
     negativeArgs: ['1234', 5],
-    expectedError: "expected '1234' to include 5",
+    expectedError: "expected '1234' to contain 5",
   },
   {
     testName: 'does not contain',
     validation: 'does not contain',
     positiveArgs: ['expression', 'esp'],
     negativeArgs: ['expression', 'expr'],
-    expectedError: "expected 'expression' to not include 'expr'",
+    expectedError: "expected 'expression' not to contain 'expr'",
   },
   {
     testName: 'have members',
@@ -210,7 +210,7 @@ const tests: Array<TestParams> = [
       [1, 2, 3],
       [3, 2, 1],
     ],
-    expectedError: 'expected [ 1, 2, 3 ] to not have the same members as [ 3, 2, 1 ]',
+    expectedError: 'expected [ 1, 2, 3 ] not to have the same members as [ 3, 2, 1 ]',
   },
   {
     testName: 'to include members',
@@ -230,21 +230,21 @@ const tests: Array<TestParams> = [
       [1, 2, 3],
       [2, 1],
     ],
-    expectedError: 'expected [ 1, 2, 3 ] to not be a superset of [ 2, 1 ]',
+    expectedError: 'expected [ 1, 2, 3 ] not to be a superset of [ 2, 1 ]',
   },
   {
     testName: 'to be above',
     validation: 'to be above',
     positiveArgs: [2, 1],
     negativeArgs: [1, 2],
-    expectedError: 'expected 1 to be above 2',
+    expectedError: 'expected 1 to be greater than 2',
   },
   {
     testName: 'to be above with type cast',
     validation: 'to be above',
     positiveArgs: [2, '1'],
     negativeArgs: [1, 2],
-    expectedError: 'expected 1 to be above 2',
+    expectedError: 'expected 1 to be greater than 2',
   },
   {
     testName: 'to be above throw error if ER is not a number',
@@ -258,21 +258,21 @@ const tests: Array<TestParams> = [
     validation: 'not to be above',
     positiveArgs: [1, 1],
     negativeArgs: [2, 1],
-    expectedError: 'expected 2 to be at most 1',
+    expectedError: 'expected 2 not to be greater than 1',
   },
   {
     testName: 'to be below',
     validation: 'to be below',
     positiveArgs: [1, 2],
     negativeArgs: [2, 1],
-    expectedError: 'expected 2 to be below 1',
+    expectedError: 'expected 2 to be less than 1',
   },
   {
     testName: 'to be below with type cast',
     validation: 'to be below',
     positiveArgs: [1, '2'],
     negativeArgs: [2, 1],
-    expectedError: 'expected 2 to be below 1',
+    expectedError: 'expected 2 to be less than 1',
   },
   {
     testName: 'to be below throw an error if ER is not a number',
@@ -286,49 +286,49 @@ const tests: Array<TestParams> = [
     validation: 'not to be below',
     positiveArgs: [1, 1],
     negativeArgs: [1, 2],
-    expectedError: 'expected 1 to be at least 2',
+    expectedError: 'expected 1 not to be less than 2',
   },
   {
     testName: 'to be greater than',
     validation: 'to be greater than',
     positiveArgs: [2, 1],
     negativeArgs: [1, 2],
-    expectedError: 'expected 1 to be above 2',
+    expectedError: 'expected 1 to be greater than 2',
   },
   {
     testName: 'is not greater than',
     validation: 'is not greater than',
     positiveArgs: [2, 2],
     negativeArgs: [2, 1],
-    expectedError: 'expected 2 to be at most 1',
+    expectedError: 'expected 2 not to be greater than 1',
   },
   {
     testName: 'to be less than',
     validation: 'to be less than',
     positiveArgs: [1, 2],
     negativeArgs: [2, 1],
-    expectedError: 'expected 2 to be below 1',
+    expectedError: 'expected 2 to be less than 1',
   },
   {
     testName: 'not to be less than',
     validation: 'not to be less than',
     positiveArgs: [1, 1],
     negativeArgs: [1, 2],
-    expectedError: 'expected 1 to be at least 2',
+    expectedError: 'expected 1 not to be less than 2',
   },
   {
     testName: 'to have type',
     validation: 'to have type',
     positiveArgs: [1, 'number'],
     negativeArgs: [1, 'string'],
-    expectedError: 'expected 1 to be a string',
+    expectedError: `expected 1 to have type 'string'`,
   },
   {
     testName: 'not to have type',
     validation: 'not to have type',
     positiveArgs: [{}, 'string'],
     negativeArgs: [{}, 'object'],
-    expectedError: 'expected {} not to be an object',
+    expectedError: `expected {} not to have type 'object'`,
   },
   {
     testName: 'to have property',
@@ -342,7 +342,7 @@ const tests: Array<TestParams> = [
     validation: 'not to have property',
     positiveArgs: [{ prop: 42 }, 'anotherProp'],
     negativeArgs: [{ prop: 42 }, 'prop'],
-    expectedError: 'expected { prop: 42 } to not have property \'prop\'',
+    expectedError: 'expected { prop: 42 } not to have property \'prop\'',
   },
   {
     testName: 'to match schema',
@@ -379,14 +379,14 @@ const tests: Array<TestParams> = [
     validation: 'not to case insensitive equal',
     positiveArgs: ['some text', 'Another Text'],
     negativeArgs: ['some text', 'Some Text'],
-    expectedError: 'expected \'some text\' to not equal \'Some Text\'',
+    expectedError: 'expected \'some text\' not to equal \'Some Text\'',
   },
   {
     testName: 'satisfy',
     validation: 'satisfy',
     positiveArgs: [1, (arg: number) => [1, 2].includes(arg)],
     negativeArgs: [1, (arg: number) => [3, 4].includes(arg)],
-    expectedError: 'expected 1 to satisfy \'(arg) => [3, 4].includes(arg)\'',
+    expectedError: 'expected 1 to satisfy (arg) => [3, 4].includes(arg)',
   },
 ];
 
@@ -406,17 +406,17 @@ test('should throw an error if validation is not supported', () => {
 test('should throw AssertionError in case of hard error', () => {
   const validation = getValidation('to equal');
   const catcher = () => validation(1, 2);
-  expect(catcher).to.throw(AssertionError, "Fail: expected 1 to equal 2");
+  expect(catcher).to.throw(AssertionError, "expected 1 to equal 2");
 });
 
 test('should throw SoftAssertionError in case of soft error', () => {
   const validation = getValidation('to equal', { soft: true });
   const catcher = () => validation(1, 2);
-  expect(catcher).to.throw(SoftAssertionError, "Fail: expected 1 to equal 2");
+  expect(catcher).to.throw(SoftAssertionError, "expected 1 to equal 2");
 });
 
 test('should throw SoftAssertionError in case softly prefix', () => {
   const validation = getValidation('to softly equal', { soft: true });
   const catcher = () => validation(1, 2);
-  expect(catcher).to.throw(SoftAssertionError, "Fail: expected 1 to equal 2");
+  expect(catcher).to.throw(SoftAssertionError, "expected 1 to equal 2");
 });

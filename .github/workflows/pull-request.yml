@@ -7,12 +7,15 @@ on:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        version: [ 20, 22, 24 ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ matrix.version }}
       - run: npm ci
       - run: npm install @rollup/rollup-linux-x64-gnu --save-dev
       - run: npm run build
