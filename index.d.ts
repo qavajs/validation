@@ -1,1 +1,0 @@
-export { getValidation, getPollValidation, verify, validationRegexp, poll, expect } from './src/verify';

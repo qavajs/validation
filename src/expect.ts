@@ -8,7 +8,7 @@ export class SoftAssertionError extends AssertionError {
     name: string = 'SoftAssertionError';
 }
 
-type MatcherContext<Target> = {
+export type MatcherContext<Target> = {
     received: Target;
     isNot: boolean;
     isSoft: boolean;
@@ -17,7 +17,7 @@ type MatcherContext<Target> = {
     asString(value: any): string;
 };
 
-type MatcherResult = {
+export type MatcherResult = {
     pass: boolean;
     message: string;
 };
