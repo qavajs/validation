@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { getPollValidation, poll } from '../src/verify';
+import { getPollValidation, poll } from '../src';
 
 function asyncActualValueString() {
     let index = 0;

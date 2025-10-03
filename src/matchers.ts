@@ -1,7 +1,37 @@
-import { expect as base } from './expect';
+import { expect as base, type MatcherResult, type MatcherContext } from './expect';
 import Ajv from 'ajv';
 
-export const expect = base.extend({
+export type BaseMatchers = {
+    toSimpleEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    toEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    toCaseInsensitiveEqual(this: MatcherContext<any>, expected: string): MatcherResult;
+    toBe(this: MatcherContext<any>, expected: any): MatcherResult;
+    toBeGreaterThan(this: MatcherContext<any>, expected: number): MatcherResult;
+    toBeGreaterThanOrEqual(this: MatcherContext<any>, expected: number): MatcherResult;
+    toBeLessThan(this: MatcherContext<any>, expected: number): MatcherResult;
+    toBeLessThanOrEqual(this: MatcherContext<any>, expected: number): MatcherResult;
+    toBeNaN(this: MatcherContext<any>): MatcherResult;
+    toBeNull(this: MatcherContext<any>): MatcherResult;
+    toBeUndefined(this: MatcherContext<any>): MatcherResult;
+    toBeTruthy(this: MatcherContext<any>): MatcherResult;
+    toContain(this: MatcherContext<any>, expected: any): MatcherResult;
+    toDeepEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    toStrictEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    toHaveLength(this: MatcherContext<any>, expected: number): MatcherResult;
+    toHaveProperty(this: MatcherContext<any>, key: string, value?: any): MatcherResult;
+    toMatch(this: MatcherContext<any>, expected: string | RegExp): MatcherResult;
+    toThrow(this: MatcherContext<() => any>, expected?: string | RegExp): MatcherResult;
+    toSatisfy(this: MatcherContext<any>, expected: (received: any) => boolean): MatcherResult;
+    toResolveWith(this: MatcherContext<Promise<any>>, expected: any): Promise<MatcherResult>;
+    toRejectWith(this: MatcherContext<Promise<any>>, expected: string): Promise<MatcherResult>;
+    toPass(this: MatcherContext<() => any>): Promise<MatcherResult>;
+    toMatchSchema(this: MatcherContext<any>, schema: object): MatcherResult;
+    toHaveMembers(this: MatcherContext<any[]>, expected: any[]): MatcherResult;
+    toIncludeMembers(this: MatcherContext<any[]>, expected: any[]): MatcherResult;
+    toHaveType(this: MatcherContext<any>, expected: string): MatcherResult;
+}
+
+export const expect = base.extend<BaseMatchers>({
     toSimpleEqual(expected: any) {
         const pass = this.received == expected;
         const message = this.formatMessage(this.received, expected, 'to equal', this.isNot);

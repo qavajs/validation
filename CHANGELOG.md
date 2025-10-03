@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## 1.4.1
+- :beetle: fixed huge declaration file
+
 ## 1.4.0
 - :rocket: dropped chai dependency in favor of own `expect` implementation
 

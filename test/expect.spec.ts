@@ -1,4 +1,4 @@
-import { expect } from '../src/matchers';
+import { expect } from '../src';
 import { test, describe, expect as vitestExpect } from 'vitest';
 
 describe('Basic assertions', () => {

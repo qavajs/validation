@@ -1,6 +1,5 @@
 import { test, expect } from 'vitest';
-import { getValidation } from '../src/verify';
-import { AssertionError, SoftAssertionError } from '../src/expect';
+import { getValidation, AssertionError, SoftAssertionError } from '../src';
 
 type TestParams = {
   testName: string;
