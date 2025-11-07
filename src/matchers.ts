@@ -260,6 +260,19 @@ function deepEqual(a: any, b: any): boolean {
     if (Object.is(a, b)) return true;
     if (typeof a !== typeof b) return false;
     if (typeof a !== 'object' || !a || !b) return false;
+
+    const isArrayA = Array.isArray(a);
+    const isArrayB = Array.isArray(b);
+
+    if (isArrayA !== isArrayB) return false;
+
+    if (isArrayA) {
+        if (a.length !== b.length) return false;
+        const sortedA = [...a].sort();
+        const sortedB = [...b].sort();
+        return sortedA.every((val, i) => deepEqual(val, sortedB[i]));
+    }
+
     const keysA = Object.keys(a), keysB = Object.keys(b);
     if (keysA.length !== keysB.length) return false;
     return keysA.every(k => deepEqual(a[k], b[k]));
