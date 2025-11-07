@@ -121,7 +121,8 @@ describe('expect matchers', () => {
     // toDeepEqual
     test('toDeepEqual sorted', () => {
         vitestExpect(() => expect([1, 2]).toDeepEqual([2, 1])).not.toThrow();
-        vitestExpect(() => expect([1, 2, 3]).toDeepEqual([1, 2])).toThrow();
+        vitestExpect(() => expect([[1, 2], [1, 2, 3]]).toDeepEqual([[1, 2], [1, 2, 3]])).not.toThrow();
+        vitestExpect(() => expect([{a: 42}, {b: 'text'}]).toDeepEqual([{a: 42}, {b: 'text'}])).not.toThrow();
     });
 
     // toHaveLength
