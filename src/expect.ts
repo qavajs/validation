@@ -1,6 +1,7 @@
-import util from 'node:util';
+import { inspect } from 'node:util';
+import { AssertionError as NodeAssertionError } from 'node:assert';
 
-export class AssertionError extends Error {
+export class AssertionError extends NodeAssertionError {
     name: string = 'AssertionError';
 }
 
@@ -105,7 +106,7 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
 
     asString(value: any) {
         if (typeof value === 'function') return value.toString();
-        return util.inspect(value, { depth: 1, compact: true })
+        return inspect(value, { depth: 1, compact: true })
     };
 }
 
@@ -140,7 +141,13 @@ function createExpect<Matcher extends MatcherMap = {}>() {
                                     if (target.isNot !== pass) return;
 
                                     if (Date.now() - start >= timeout) {
-                                        throw new target.Error(message);
+                                        throw new target.Error({
+                                            message,
+                                            actual: target.received,
+                                            expected: expected.at(0),
+                                            operator: prop as string,
+                                            diff: 'simple'
+                                        });
                                     }
                                 } catch (err) {
                                     if (Date.now() - start >= timeout) throw err;
@@ -154,11 +161,23 @@ function createExpect<Matcher extends MatcherMap = {}>() {
 
                     if (result instanceof Promise) {
                         return result.then(({ pass, message }) => {
-                            if (target.isNot === pass) throw new target.Error(message);
+                            if (target.isNot === pass) throw new target.Error({
+                                message,
+                                actual: target.received,
+                                expected: expected.at(0),
+                                operator: prop as string,
+                                diff: 'simple'
+                            });
                         });
                     } else {
                         const { pass, message } = result;
-                        if (target.isNot === pass) throw new target.Error(message);
+                        if (target.isNot === pass) throw new target.Error({
+                            message,
+                            actual: target.received,
+                            expected: expected.at(0),
+                            operator: prop as string,
+                            diff: 'simple'
+                        });
                     }
                 };
             },

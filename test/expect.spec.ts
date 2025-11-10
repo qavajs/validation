@@ -123,6 +123,8 @@ describe('expect matchers', () => {
         vitestExpect(() => expect([1, 2]).toDeepEqual([2, 1])).not.toThrow();
         vitestExpect(() => expect([[1, 2], [1, 2, 3]]).toDeepEqual([[1, 2], [1, 2, 3]])).not.toThrow();
         vitestExpect(() => expect([{a: 42}, {b: 'text'}]).toDeepEqual([{a: 42}, {b: 'text'}])).not.toThrow();
+        vitestExpect(() => expect([[1, 2], [1, 2, 3]]).toDeepEqual([[1, 2, 3], [1, 2]])).not.toThrow();
+        vitestExpect(() => expect([{a: 42}, {b: 'text'}]).toDeepEqual([{b: 'text'}, {a: 42}])).not.toThrow();
     });
 
     // toHaveLength

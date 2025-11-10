@@ -268,12 +268,30 @@ function deepEqual(a: any, b: any): boolean {
 
     if (isArrayA) {
         if (a.length !== b.length) return false;
-        const sortedA = [...a].sort();
-        const sortedB = [...b].sort();
-        return sortedA.every((val, i) => deepEqual(val, sortedB[i]));
+        const usedIndices = new Set<number>();
+        for (const itemA of a) {
+            let found = false;
+            for (let i = 0; i < b.length; i++) {
+                if (!usedIndices.has(i) && deepEqual(itemA, b[i])) {
+                    usedIndices.add(i);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+        return true;
     }
 
-    const keysA = Object.keys(a), keysB = Object.keys(b);
+    // Handle objects with sorted keys
+    const keysA = Object.keys(a).sort();
+    const keysB = Object.keys(b).sort();
+
     if (keysA.length !== keysB.length) return false;
+
+    // Compare sorted keys first
+    if (!keysA.every((key, i) => key === keysB[i])) return false;
+
+    // Then compare values
     return keysA.every(k => deepEqual(a[k], b[k]));
 }

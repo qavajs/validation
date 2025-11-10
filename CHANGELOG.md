@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## [1.5.0]
+- :rocket: improved `AssertionError` to inherit it from nodejs `AssertionError`
+
 ## [1.4.2]
 - :beetle: fixed deep equal to ignore array sort
 
