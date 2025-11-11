@@ -1,6 +1,6 @@
 {
   "name": "@qavajs/validation",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "@qavajs library that transform plain english definition to validation functions",
   "main": "./lib/index.js",
   "scripts": {

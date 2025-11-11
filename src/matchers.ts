@@ -1,5 +1,6 @@
 import { expect as base, type MatcherResult, type MatcherContext } from './expect';
 import Ajv from 'ajv';
+import { isDeepStrictEqual } from 'node:util';
 
 export type BaseMatchers = {
     toSimpleEqual(this: MatcherContext<any>, expected: any): MatcherResult;
@@ -16,6 +17,7 @@ export type BaseMatchers = {
     toBeTruthy(this: MatcherContext<any>): MatcherResult;
     toContain(this: MatcherContext<any>, expected: any): MatcherResult;
     toDeepEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    toDeepStrictEqual(this: MatcherContext<any>, expected: any): MatcherResult;
     toStrictEqual(this: MatcherContext<any>, expected: any): MatcherResult;
     toHaveLength(this: MatcherContext<any>, expected: number): MatcherResult;
     toHaveProperty(this: MatcherContext<any>, key: string, value?: any): MatcherResult;
@@ -131,6 +133,12 @@ export const expect = base.extend<BaseMatchers>({
     toDeepEqual(expected: any) {
         const pass = deepEqual(this.received, expected);
         const message = this.formatMessage(this.received, expected, 'to deeply equal', this.isNot);
+        return { pass, message };
+    },
+
+    toDeepStrictEqual(expected: any) {
+        const pass = isDeepStrictEqual(this.received, expected);
+        const message = this.formatMessage(this.received, expected, 'to deeply strictly equal', this.isNot);
         return { pass, message };
     },
 

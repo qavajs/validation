@@ -19,6 +19,7 @@ This library supports a variety of validation types, which can all be negated by
   - **`equal`**: Checks for non-strict equality (`==`).
   - **`strictly equal`**: Checks for strict equality (`===`).
   - **`deeply equal`**: Performs a deep comparison of object properties or array elements.
+  - **`deeply strictly equal`**: Performs a deep comparison of object properties or array elements with nodejs [util.isDeepStrictEqual](https://nodejs.org/api/util.html#utilisdeepstrictequalval1-val2-options)
   - **`case insensitive equal`**: Compares two values for non-strict equality after converting them to lowercase.
   - **`contain`**: Verifies if a string contains a specific substring.
   - **`include members`**: Checks if an array or object includes a specific set of members.
