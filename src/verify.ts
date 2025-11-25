@@ -1,5 +1,4 @@
 import { expect } from './matchers';
-import {AssertionError} from "node:assert";
 
 export const validations = {
     EQUAL: 'equal',
