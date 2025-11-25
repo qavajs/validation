@@ -66,7 +66,12 @@ const validationFns: Record<string, (expectClause: any, expected: any) => void> 
 export function verify({received, expected, validation, reverse, soft}: VerifyInput): void {
     const expectClause = expect(received).configure({not: reverse, soft});
     const validate = validationFns[validation];
-    validate(expectClause, expected);
+    try {
+        validate(expectClause, expected);
+    } catch (e: any) {
+        e.message = `[${e.name ?? e.code}] ${e.message}`;
+        throw e;
+    }
 }
 
 export function getValidation(validationType: string, options?: { soft: boolean }): (AR: any, expected: any) => void {
