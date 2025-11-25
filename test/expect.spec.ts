@@ -154,6 +154,11 @@ describe('expect matchers', () => {
         vitestExpect(() => expect('hello world').toMatch(/bye/)).toThrow();
     });
 
+    // toMatchSchema
+    test('toMatchSchema', () => {
+        expect({ x: 42 }).toMatchSchema({ type: 'object', properties: { x: { type: 'number' } } });
+    });
+
     // toThrow
     test('toThrow', () => {
         vitestExpect(() => expect(() => { throw new Error('fail') }).toThrow()).not.toThrow();

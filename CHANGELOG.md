@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## [1.6.1]
+- :rocket: added workaround to show error message in Cucumber framework
+
 ## [1.6.0]
 - :rocket: added `deeply strictly equal` matcher
 
