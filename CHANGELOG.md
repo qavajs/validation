@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## [1.6.2]
+- :pencil: updated ajv package
+
 ## [1.6.1]
 - :rocket: added workaround to show error message in Cucumber framework
 
