@@ -2,6 +2,8 @@ import { expect as base, type MatcherResult, type MatcherContext } from './expec
 import Ajv from 'ajv';
 import { isDeepStrictEqual } from 'node:util';
 
+const ajv = new Ajv();
+
 /**
  * Collection of built-in matcher methods available on every `expect()` call.
  * Each method returns a {@link MatcherResult} (or `Promise<MatcherResult>` for async matchers).
@@ -292,7 +294,6 @@ export const expect = base.extend<BaseMatchers>({
     },
 
     toMatchSchema(schema: Object) {
-        const ajv = new Ajv();
         const validate = ajv.compile(schema);
         const pass = validate(this.received);
         const messages = validate.errors
@@ -335,10 +336,15 @@ export const expect = base.extend<BaseMatchers>({
  * @param b - Second value.
  * @returns `true` if both values are deeply equal.
  */
-function deepEqual(a: any, b: any): boolean {
+function deepEqual(a: any, b: any, seen = new WeakMap<object, WeakSet<object>>()): boolean {
     if (Object.is(a, b)) return true;
     if (typeof a !== typeof b) return false;
     if (typeof a !== 'object' || !a || !b) return false;
+
+    const seenB = seen.get(a);
+    if (seenB?.has(b)) return true;
+    if (!seenB) seen.set(a, new WeakSet());
+    seen.get(a)!.add(b);
 
     const isArrayA = Array.isArray(a);
     const isArrayB = Array.isArray(b);
@@ -351,7 +357,7 @@ function deepEqual(a: any, b: any): boolean {
         for (const itemA of a) {
             let found = false;
             for (let i = 0; i < b.length; i++) {
-                if (!usedIndices.has(i) && deepEqual(itemA, b[i])) {
+                if (!usedIndices.has(i) && deepEqual(itemA, b[i], seen)) {
                     usedIndices.add(i);
                     found = true;
                     break;
@@ -362,15 +368,11 @@ function deepEqual(a: any, b: any): boolean {
         return true;
     }
 
-    // Handle objects with sorted keys
     const keysA = Object.keys(a).sort();
     const keysB = Object.keys(b).sort();
 
     if (keysA.length !== keysB.length) return false;
-
-    // Compare sorted keys first
     if (!keysA.every((key, i) => key === keysB[i])) return false;
 
-    // Then compare values
-    return keysA.every(k => deepEqual(a[k], b[k]));
+    return keysA.every(k => deepEqual(a[k], b[k], seen));
 }

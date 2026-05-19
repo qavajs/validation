@@ -118,6 +118,8 @@ export class Expect<Target, Matcher extends MatcherMap = {}> {
         if (typeof this.received !== 'function') {
             throw new TypeError('Provided value must be a function');
         }
+        if (timeout !== undefined && timeout <= 0) throw new TypeError('timeout must be greater than 0');
+        if (interval !== undefined && interval <= 0) throw new TypeError('interval must be greater than 0');
         this.isPoll = true;
         this.pollConfiguration.timeout = timeout ?? 5000;
         this.pollConfiguration.interval = interval ?? 100;

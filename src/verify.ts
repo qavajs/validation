@@ -103,6 +103,7 @@ export function verify({received, expected, validation, reverse, soft}: VerifyIn
         validate(expectClause, expected);
     } catch (e: any) {
         e.message = `[${e.name ?? e.code}] ${e.message}`;
+        Error.captureStackTrace(e, verify);
         throw e;
     }
 }
@@ -160,7 +161,9 @@ export function getPollValidation(validationType: string, options?: {
     return async function (received: any, expected: any, options?: { timeout?: number, interval?: number }) {
         const timeout = options?.timeout ?? 5000;
         const interval = options?.interval ?? 500;
-        let lastError: Error = new Error(`Promise was not settled before timeout`);
+        if (timeout <= 0) throw new Error('timeout must be greater than 0');
+        if (interval <= 0) throw new Error('interval must be greater than 0');
+        let lastError: Error = new Error(`Promise was not settled before timeout (${timeout}ms)`);
         let intervalId: NodeJS.Timeout;
         const evaluatePromise = new Promise<void>(resolve => {
             intervalId = setInterval(async () => {
@@ -206,6 +209,8 @@ export function getPollValidation(validationType: string, options?: {
 export async function poll(fn: Function, options?: { timeout?: number, interval?: number }) {
     const timeout = options?.timeout ?? 5000;
     const interval = options?.interval ?? 500;
+    if (timeout <= 0) throw new Error('timeout must be greater than 0');
+    if (interval <= 0) throw new Error('interval must be greater than 0');
     let lastError: Error = new Error('Unexpected error');
     let intervalId: NodeJS.Timeout;
     const evaluatePromise = new Promise<void>(resolve => {
