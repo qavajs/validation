@@ -64,11 +64,6 @@ test('should throw an error if validation is not supported', () => {
     expect(catcher).to.throw("Poll validation 'to be cool' is not supported");
 });
 
-test('should throw an error if validation is not supported', () => {
-    const catcher = () => getPollValidation('to be cool');
-    expect(catcher).to.throw("Poll validation 'to be cool' is not supported");
-});
-
 test('generic poll', async () => {
     await poll(async () => true, { timeout: 2000, interval: 500 });
 });

@@ -2,37 +2,102 @@ import { expect as base, type MatcherResult, type MatcherContext } from './expec
 import Ajv from 'ajv';
 import { isDeepStrictEqual } from 'node:util';
 
+const ajv = new Ajv();
+
+/**
+ * Collection of built-in matcher methods available on every `expect()` call.
+ * Each method returns a {@link MatcherResult} (or `Promise<MatcherResult>` for async matchers).
+ */
 export type BaseMatchers = {
+    /** Loose equality (`==`). Passes when `received == expected`. */
     toSimpleEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    /** Strict identity (`Object.is`). Passes when `Object.is(received, expected)`. */
     toEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    /** Case-insensitive string equality. Both values are lowercased before comparison. */
     toCaseInsensitiveEqual(this: MatcherContext<any>, expected: string): MatcherResult;
+    /** Strict identity using `Object.is`. Equivalent to {@link toEqual}. */
     toBe(this: MatcherContext<any>, expected: any): MatcherResult;
+    /** Passes when `received > expected`. */
     toBeGreaterThan(this: MatcherContext<any>, expected: number): MatcherResult;
+    /** Passes when `received >= expected`. */
     toBeGreaterThanOrEqual(this: MatcherContext<any>, expected: number): MatcherResult;
+    /** Passes when `received < expected`. */
     toBeLessThan(this: MatcherContext<any>, expected: number): MatcherResult;
+    /** Passes when `received <= expected`. */
     toBeLessThanOrEqual(this: MatcherContext<any>, expected: number): MatcherResult;
+    /** Passes when `Number.isNaN(received)`. */
     toBeNaN(this: MatcherContext<any>): MatcherResult;
+    /** Passes when `received === null`. */
     toBeNull(this: MatcherContext<any>): MatcherResult;
+    /** Passes when `received === undefined`. */
     toBeUndefined(this: MatcherContext<any>): MatcherResult;
+    /** Passes when `!!received` is truthy. */
     toBeTruthy(this: MatcherContext<any>): MatcherResult;
+    /** Passes when `received.includes(expected)`. Works on strings and arrays. */
     toContain(this: MatcherContext<any>, expected: any): MatcherResult;
+    /**
+     * Deep equality with **unordered** array comparison.
+     * Two arrays are considered equal when they contain the same elements regardless of order.
+     */
     toDeepEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    /**
+     * Deep strict equality using Node.js `util.isDeepStrictEqual`.
+     * Array order matters and type coercion is not performed.
+     */
     toDeepStrictEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    /** Strict reference equality (`===`). Passes when `received === expected`. */
     toStrictEqual(this: MatcherContext<any>, expected: any): MatcherResult;
+    /** Passes when `received.length === expected`. */
     toHaveLength(this: MatcherContext<any>, expected: number): MatcherResult;
+    /**
+     * Passes when `received` has the given property `key`.
+     * When `value` is also provided, the property must additionally equal that value (`Object.is`).
+     */
     toHaveProperty(this: MatcherContext<any>, key: string, value?: any): MatcherResult;
+    /** Passes when `received` matches the string or regular expression `expected`. */
     toMatch(this: MatcherContext<any>, expected: string | RegExp): MatcherResult;
+    /**
+     * Passes when invoking `received()` throws an error.
+     * When `expected` is provided, the thrown error's message must match it.
+     */
     toThrow(this: MatcherContext<() => any>, expected?: string | RegExp): MatcherResult;
+    /**
+     * Passes when the predicate `expected(received)` returns `true`.
+     * @param expected - A function that receives the tested value and returns a boolean.
+     */
     toSatisfy(this: MatcherContext<any>, expected: (received: any) => boolean): MatcherResult;
+    /** Passes when the promise `received` resolves with a value equal to `expected`. */
     toResolveWith(this: MatcherContext<Promise<any>>, expected: any): Promise<MatcherResult>;
+    /** Passes when the promise `received` rejects with an error message containing `expected`. */
     toRejectWith(this: MatcherContext<Promise<any>>, expected: string): Promise<MatcherResult>;
+    /**
+     * Passes when calling `received()` completes without throwing.
+     * Useful for asserting that an async operation finishes successfully.
+     */
     toPass(this: MatcherContext<() => any>): Promise<MatcherResult>;
+    /** Validates `received` against a JSON Schema using AJV. */
     toMatchSchema(this: MatcherContext<any>, schema: object): MatcherResult;
+    /**
+     * Passes when `received` and `expected` arrays contain the same members, regardless of order.
+     * Uses deep equality for element comparison.
+     */
     toHaveMembers(this: MatcherContext<any[]>, expected: any[]): MatcherResult;
+    /**
+     * Passes when `received` is a superset of `expected` — every element in `expected`
+     * has a matching element in `received` (deep equality, unordered).
+     */
     toIncludeMembers(this: MatcherContext<any[]>, expected: any[]): MatcherResult;
+    /**
+     * Passes when `typeof received === expected`, or when `expected === 'array'` and
+     * `Array.isArray(received)` is `true`.
+     */
     toHaveType(this: MatcherContext<any>, expected: string): MatcherResult;
 }
 
+/**
+ * Pre-configured `expect` function extended with all {@link BaseMatchers}.
+ * Use this as the primary entry point for writing assertions.
+ */
 export const expect = base.extend<BaseMatchers>({
     toSimpleEqual(expected: any) {
         const pass = this.received == expected;
@@ -229,7 +294,6 @@ export const expect = base.extend<BaseMatchers>({
     },
 
     toMatchSchema(schema: Object) {
-        const ajv = new Ajv();
         const validate = ajv.compile(schema);
         const pass = validate(this.received);
         const messages = validate.errors
@@ -264,10 +328,23 @@ export const expect = base.extend<BaseMatchers>({
     }
 });
 
-function deepEqual(a: any, b: any): boolean {
+/**
+ * Recursively compares two values for deep equality, treating arrays as **unordered** sets.
+ * Objects are compared by sorted key order so that `{ a: 1, b: 2 }` equals `{ b: 2, a: 1 }`.
+ *
+ * @param a - First value.
+ * @param b - Second value.
+ * @returns `true` if both values are deeply equal.
+ */
+function deepEqual(a: any, b: any, seen = new WeakMap<object, WeakSet<object>>()): boolean {
     if (Object.is(a, b)) return true;
     if (typeof a !== typeof b) return false;
     if (typeof a !== 'object' || !a || !b) return false;
+
+    const seenB = seen.get(a);
+    if (seenB?.has(b)) return true;
+    if (!seenB) seen.set(a, new WeakSet());
+    seen.get(a)!.add(b);
 
     const isArrayA = Array.isArray(a);
     const isArrayB = Array.isArray(b);
@@ -280,7 +357,7 @@ function deepEqual(a: any, b: any): boolean {
         for (const itemA of a) {
             let found = false;
             for (let i = 0; i < b.length; i++) {
-                if (!usedIndices.has(i) && deepEqual(itemA, b[i])) {
+                if (!usedIndices.has(i) && deepEqual(itemA, b[i], seen)) {
                     usedIndices.add(i);
                     found = true;
                     break;
@@ -291,15 +368,11 @@ function deepEqual(a: any, b: any): boolean {
         return true;
     }
 
-    // Handle objects with sorted keys
     const keysA = Object.keys(a).sort();
     const keysB = Object.keys(b).sort();
 
     if (keysA.length !== keysB.length) return false;
-
-    // Compare sorted keys first
     if (!keysA.every((key, i) => key === keysB[i])) return false;
 
-    // Then compare values
-    return keysA.every(k => deepEqual(a[k], b[k]));
+    return keysA.every(k => deepEqual(a[k], b[k], seen));
 }

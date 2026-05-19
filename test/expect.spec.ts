@@ -29,9 +29,31 @@ describe('Promise assertions', () => {
         await expect(promise).toResolveWith(1);
     });
 
+    test('toResolveWith fails when promise rejects', async () => {
+        await vitestExpect(async () => {
+            await expect(Promise.reject(new Error('oops'))).toResolveWith(1);
+        }).rejects.toThrow('promise rejected: oops');
+    });
+
     test('rejects', async () => {
         const promise = Promise.reject(new Error('no id'));
         await expect(promise).toRejectWith('no id');
+    });
+
+    test('toRejectWith fails when promise resolves', async () => {
+        await vitestExpect(async () => {
+            await expect(Promise.resolve('value')).toRejectWith('error');
+        }).rejects.toThrow();
+    });
+
+    test('toPass passes', async () => {
+        await expect(async () => {}).toPass();
+    });
+
+    test('toPass fails when function throws', async () => {
+        await vitestExpect(async () => {
+            await expect(async () => { throw new Error('intentional') }).toPass();
+        }).rejects.toThrow('expected provided function to pass');
     });
 });
 
@@ -41,6 +63,16 @@ describe('Polling assertions', () => {
         setTimeout(() => { value = 200; }, 1500);
 
         await expect(() => value).poll({ interval: 100, timeout: 2000 }).toEqual(200);
+    });
+
+    test('poll throws when received is not a function', () => {
+        vitestExpect(() => expect(42).poll()).toThrow('Provided value must be a function');
+    });
+
+    test('poll times out and throws', async () => {
+        await vitestExpect(async () => {
+            await expect(() => 'wrong').poll({ timeout: 300, interval: 50 }).toEqual('right');
+        }).rejects.toThrow();
     });
 });
 

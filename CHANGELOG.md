@@ -12,6 +12,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## [1.6.3]
+- :beetle: fixed `deepEqual` stack overflow on circular object references
+- :beetle: fixed `toMatchSchema` creating a new AJV instance on every call
+- :beetle: fixed poll `timeout` message to include the configured timeout value
+- :beetle: added validation guards for non-positive `timeout` and `interval` in poll options
+- :beetle: preserved error stack trace in `verify()` to point at test call site
+- :pencil: removed duplicate test in poll spec
+- :pencil: improved branch coverage for `toResolveWith`, `toRejectWith`, `toPass`, and poll timeout path
+- :pencil: added JSDoc to all source files
+
 ## [1.6.2]
 - :pencil: updated ajv package
 
