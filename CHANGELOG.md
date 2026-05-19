@@ -12,6 +12,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :pencil: - chore
 
+## [1.6.3]
+- :pencil: added JSDoc to all source files
+
 ## [1.6.2]
 - :pencil: updated ajv package
 
